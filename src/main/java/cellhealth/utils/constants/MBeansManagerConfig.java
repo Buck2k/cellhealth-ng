@@ -1,7 +1,7 @@
 package cellhealth.utils.constants;
 
 /**
- * Created by alberto on 18/06/15.
+ * Created by Alberto Pascual on 18/06/15.
  */
 public class MBeansManagerConfig {
 

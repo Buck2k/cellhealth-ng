@@ -3,7 +3,7 @@ package cellhealth.core.threads;
 import java.util.Date;
 
 /**
- * Created by alberto on 19/06/15.
+ * Created by Alberto Pascual on 19/06/15.
  */
 public class InstanceManager implements Runnable {
     public void run() {
