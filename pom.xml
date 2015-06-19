@@ -8,31 +8,44 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <basePath>cellhealth-ng/</basePath>
-        <junitVersion>4.12</junitVersion>
-        <assemblyVersion>2.4</assemblyVersion>
-        <jdkSource>1.7</jdkSource>
-        <resourcesVersion>2.7</resourcesVersion>
+        <base.path>cellhealth-ng/</base.path>
+        <junit.version>4.12</junit.version>
+        <assembly.version>2.4</assembly.version>
+        <resources.version>2.7</resources.version>
+        <lombok.version>1.16.4</lombok.version>
+        <log4j.version>1.2.17</log4j.version>
+        <compiler.version>3.3</compiler.version>
+        <jdk.version>1.5</jdk.version>
     </properties>
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>${junitVersion}</version>
+            <version>${junit.version}</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.16.4</version>
+            <version>${lombok.version}</version>
         </dependency>
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
-            <version>1.2.17</version>
+            <version>${log4j.version}</version>
         </dependency>
-
+        <!--<dependency>-->
+            <!--<groupId>com.ibm.ws.admin.client</groupId>-->
+            <!--<artifactId>com.ibm.ws.admin.client</artifactId>-->
+            <!--<scope>system</scope>-->
+            <!--<version>6.1.0</version>-->
+            <!--<systemPath>${basedir}/lib/com.ibm.ws.admin.client_6.1.0.jar</systemPath>-->
+        <!--</dependency>-->
+        <dependency>
+            <groupId>com.ibm.ws.admin</groupId>
+            <artifactId>client</artifactId>
+            <version>6.1.0 </version>
+        </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -47,15 +60,28 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
         </plugins>
         <pluginManagement>
             <plugins>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-assembly-plugin</artifactId>
-                    <version>${assemblyVersion}</version>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>${compiler.version}</version>
                     <configuration>
-                        <outputDirectory>${basePath}</outputDirectory>
+                        <source>${jdk.version}</source>
+                        <target>${jdk.version}</target>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>${assembly.version}</version>
+                    <configuration>
+                        <outputDirectory>${base.path}</outputDirectory>
                         <descriptorRefs>
                             <descriptorRef>jar-with-dependencies</descriptorRef>
                         </descriptorRefs>
@@ -64,6 +90,8 @@
                                 <mainClass>cellhealth.core.cellhealth</mainClass>
                             </manifest>
                         </archive>
+                        <finalName>cellhealth-ng.${version}</finalName>
+                        <appendAssemblyId>false</appendAssemblyId>
                     </configuration>
                     <executions>
                         <execution>
@@ -78,7 +106,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-resources-plugin</artifactId>
-                    <version>${resourcesVersion}</version>
+                    <version>${resources.version}</version>
                     <executions>
                         <execution>
                             <id>copy-base_properties</id>
@@ -87,17 +115,19 @@
                                 <goal>copy-resources</goal>
                             </goals>
                             <configuration>
-                                <outputDirectory>${basePath}</outputDirectory>
+                                <outputDirectory>${base.path}</outputDirectory>
                                 <resources>
                                     <resource>
-                                        <targetPath>./properties/</targetPath>
-                                        <directory>.</directory>
+                                        <targetPath>./</targetPath>
+                                        <directory>properties</directory>
                                     </resource>
-                                    <!--<resource>-->
-                                        <!--<targetPath>${basedir}/target/uggh</targetPath>-->
-                                        <!--<directory>uggh</directory>-->
-                                        <!--<filtering>false</filtering>-->
-                                    <!--</resource>-->
+                                    <resource>>
+                                        <directory>./lib/</directory>
+                                        <includes>
+                                            <include>ibmorb.jar</include>
+                                            <include>ibmorbapi.jar</include>
+                                        </includes>
+                                    </resource>
                                 </resources>
                             </configuration>
                         </execution>
