@@ -6,16 +6,15 @@
     <groupId>cellhealth-ng</groupId>
     <artifactId>cellhealth-ng</artifactId>
     <version>1.0-SNAPSHOT</version>
-
     <properties>
         <base.path>cellhealth-ng/</base.path>
         <junit.version>4.12</junit.version>
         <assembly.version>2.4</assembly.version>
         <resources.version>2.7</resources.version>
-        <lombok.version>1.16.4</lombok.version>
         <log4j.version>1.2.17</log4j.version>
         <compiler.version>3.3</compiler.version>
         <jdk.version>1.5</jdk.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <dependencies>
         <dependency>
@@ -24,22 +23,10 @@
             <version>${junit.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>${lombok.version}</version>
-        </dependency>
-        <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
             <version>${log4j.version}</version>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>com.ibm.ws.admin.client</groupId>-->
-            <!--<artifactId>com.ibm.ws.admin.client</artifactId>-->
-            <!--<scope>system</scope>-->
-            <!--<version>6.1.0</version>-->
-            <!--<systemPath>${basedir}/lib/com.ibm.ws.admin.client_6.1.0.jar</systemPath>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>com.ibm.ws.admin</groupId>
             <artifactId>client</artifactId>
@@ -48,10 +35,6 @@
     </dependencies>
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
@@ -81,7 +64,7 @@
                     <artifactId>maven-assembly-plugin</artifactId>
                     <version>${assembly.version}</version>
                     <configuration>
-                        <outputDirectory>${base.path}</outputDirectory>
+                        <outputDirectory>${base.path}/bin/</outputDirectory>
                         <descriptorRefs>
                             <descriptorRef>jar-with-dependencies</descriptorRef>
                         </descriptorRefs>
@@ -90,7 +73,7 @@
                                 <mainClass>cellhealth.core.cellhealth</mainClass>
                             </manifest>
                         </archive>
-                        <finalName>cellhealth-ng.${version}</finalName>
+                        <finalName>cellhealth-ng.${project.version}</finalName>
                         <appendAssemblyId>false</appendAssemblyId>
                     </configuration>
                     <executions>
@@ -118,15 +101,16 @@
                                 <outputDirectory>${base.path}</outputDirectory>
                                 <resources>
                                     <resource>
-                                        <targetPath>./</targetPath>
-                                        <directory>properties</directory>
+                                        <targetPath>./conf/</targetPath>
+                                        <directory>resources/conf</directory>
                                     </resource>
-                                    <resource>>
-                                        <directory>./lib/</directory>
-                                        <includes>
-                                            <include>ibmorb.jar</include>
-                                            <include>ibmorbapi.jar</include>
-                                        </includes>
+                                    <resource>
+                                        <targetPath>./</targetPath>
+                                        <directory>resources/scripts</directory>
+                                    </resource>
+                                    <resource>
+                                        <targetPath>./logs/</targetPath>
+                                        <directory>resources/logs</directory>
                                     </resource>
                                 </resources>
                             </configuration>
@@ -136,5 +120,4 @@
             </plugins>
         </pluginManagement>
     </build>
-
 </project>
