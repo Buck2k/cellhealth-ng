@@ -32,6 +32,11 @@
             <artifactId>client</artifactId>
             <version>6.1.0 </version>
         </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty</artifactId>
+            <version>3.8.0.Final</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

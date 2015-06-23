@@ -10,7 +10,7 @@ function  usage() {
         -?	   Show this message
         -l	   Path to a log4j config file
         -c	   Path to cellhealth configuration file
-    EOF
+EOF
 }
 
 source /opt/IBM/WAS85/AppServer/profiles/dmgr/bin/setupCmdLine.sh
@@ -49,6 +49,9 @@ then
 else
     	CONFILE="-Dch_config_path=${CELLHEALTH_HOME}/conf/config.properties"
 fi
+
+GRAPHITECONFILE="-Dch_config_graphite_path=${CELLHEALTH_HOME}/conf/config.properties"
+
 MAIN_JAR=`ls -1tr ${CELLHEALTH_HOME}/bin/cellhealth-ng.*.jar|tail -1`
 
 ${JAVA_HOME}/bin/java $CONFILE $CLIENTSAS $STDINCLIENTSAS $SERVERSAS $CLIENTSOAP $CLIENTIPC $JAASSOAP $CLIENTSSL $WAS_LOGGING -cp $CLASSPATH:${CELLHEALTH_HOME}/lib $LOG4JAVA -jar ${MAIN_JAR}

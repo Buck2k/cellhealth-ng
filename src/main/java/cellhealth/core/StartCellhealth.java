@@ -2,6 +2,7 @@ package cellhealth.core;
 
 import cellhealth.core.connection.MBeansManager;
 import cellhealth.core.connection.WASConnection;
+import cellhealth.sender.graphite.sender.GraphiteSender;
 import cellhealth.utils.constants.MBeansManagerConfig;
 import com.ibm.websphere.management.configservice.ConfigService;
 import com.ibm.websphere.management.configservice.ConfigServiceProxy;
@@ -34,8 +35,8 @@ public class StartCellhealth {
     }
 
     private void initMetricsCollector() throws ConnectorException, MalformedObjectNameException, AttributeNotFoundException, MBeanException, ReflectionException, InstanceNotFoundException {
-        for(ObjectName objectName: mbeansManager.getMBeans("WebSphere:*")){
-                System.out.println(objectName + "\n");
+//        for(ObjectName objectName: mbeansManager.getMBeans("WebSphere:*")){
+//                System.out.println(objectName + "\n");
 //                String serverName = (String)mbeansManager.getAttribute(objectName, "name");
 //                String serverHost = (String)mbeansManager.getAttribute(objectName, "nodeName");
 //                if (serverHost == null || serverHost.length() == 0) {
@@ -43,15 +44,18 @@ public class StartCellhealth {
 //                } else {
 //                    L4j.getL4j().info("SERVER: " + serverName + " OVER MACHINE: " + serverHost);
 //                }
-            }
-        System.out.println("\n\n\n\n");
-        for(ObjectName objectName: mbeansManager.getMBeans(MBeansManagerConfig.QUERY_SERVER)){
-            System.out.println(objectName + "\n");
-        }
-        System.out.println("\n\n\n\n");
-        for(ObjectName objectName: mbeansManager.getMBeans(MBeansManagerConfig.QUERY_PERF)){
-            System.out.println(objectName + "\n");
-        }
+//        }
+//        System.out.println("\n\n\n\n");
+//        for(ObjectName objectName: mbeansManager.getMBeans(MBeansManagerConfig.QUERY_SERVER)){
+//            System.out.println(objectName + "\n");
+//        }
+//        System.out.println("\n\n\n\n");
+//        for(ObjectName objectName: mbeansManager.getMBeans(MBeansManagerConfig.QUERY_PERF)){
+//            System.out.println(objectName + "\n");
+//        }
+        GraphiteSender gs = new GraphiteSender();
+        gs.inti();
+        gs.send("test");
     }
 
 

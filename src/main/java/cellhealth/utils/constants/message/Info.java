@@ -10,4 +10,5 @@ public class Info {
     public static final String CONECTANDO_DMG = "Conexión con el proceso \"dmgr\"";
     public static final String CONECTANDO_MEDIANTE_CONECTOR = "mediante el conector";
     public static final String CONECTANDO_HOST = "al host";
+    public static final String CONNECT_TO = "Connected to: ";
 }
