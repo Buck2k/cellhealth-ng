@@ -50,6 +50,6 @@ public class Pipeline implements ChannelPipelineFactory {
     }
 
     public ChannelPipeline getCurrentPipeline() throws Exception {
-        return (this.channelPipeline != null)? channelPipeline : getPipeline();
+        return (this.channelPipeline != null)? channelPipeline : this.getPipeline();
     }
 }

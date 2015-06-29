@@ -78,7 +78,7 @@ public class GraphiteSender implements Sender {
         }
     }
 
-    public void inti(){
+    public void init(){
         L4j.getL4j().info(GRAPHITE_INIT);
         int port, reconnectTimeout, sendBufferSize;
         try {
@@ -104,13 +104,12 @@ public class GraphiteSender implements Sender {
             this.channelFactory = new NioClientSocketChannelFactory(Executors.newCachedThreadPool(), Executors.newCachedThreadPool());
             this.clientBootstrap = new ClientBootstrap(channelFactory);
             this.pipeline = new Pipeline(this.clientBootstrap, new HashedWheelTimer(), reconnectTimeout);
-
             this.clientBootstrap.setPipelineFactory(this.pipeline);
             this.clientBootstrap.setOption("tcpNoDelay", true);
             this.clientBootstrap.setOption("keepAlive", true);
             this.clientBootstrap.setOption("remoteAddress", this.socketAddress);
             this.clientBootstrap.setOption("sendBufferSize", sendBufferSize);
-            this.channelFuture = this.clientBootstrap.connect();
+            this.channelFuture = this.clientBootstrap.connect(this.socketAddress);
         } catch (Exception e) {
             L4j.getL4j().critical(new StringBuilder(DISABLE).append(e.toString()).toString());
         }

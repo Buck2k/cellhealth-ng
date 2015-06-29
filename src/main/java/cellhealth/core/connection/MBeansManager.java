@@ -9,6 +9,7 @@ import com.ibm.websphere.pmi.stat.StatDescriptor;
 import com.ibm.websphere.pmi.stat.WSStats;
 import com.ibm.websphere.management.AdminClient;
 import com.ibm.websphere.management.exception.ConnectorException;
+import com.ibm.ws.webservices.engine.utils.Admin;
 
 import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
@@ -103,6 +104,13 @@ public class MBeansManager {
         Object[] parameters = new Object[]{mbeanStatDescriptor, new Boolean(true)};
         String[] signature = new String[]{MBeansManagerConfig.MBEANSTATDESCRIPTOR, MBeansManagerConfig.JAVA_BOOLEAN};
         return (WSStats)this.client.invoke(auxPerfMBean, MBeansManagerConfig.STATS_OBJECT, parameters, signature);
+    }
+
+    public AdminClient getClient(){
+        return this.client;
+    }
+    public ObjectName getPerfMBean(){
+        return this.perfMBean;
     }
 
     public ObjectName getNodeAgentMBean(String nodeName) throws MalformedObjectNameException, ConnectorException {

@@ -53,9 +53,7 @@ public class StartCellhealth {
 //        for(ObjectName objectName: mbeansManager.getMBeans(MBeansManagerConfig.QUERY_PERF)){
 //            System.out.println(objectName + "\n");
 //        }
-        GraphiteSender gs = new GraphiteSender();
-        gs.inti();
-        gs.send("test");
+
     }
 
 

@@ -22,7 +22,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-
 /**
  * Created by Alberto Pascual on 22/06/15.
  */
@@ -78,6 +77,7 @@ public class Handler extends SimpleChannelUpstreamHandler {
     public void handleUpstream(ChannelHandlerContext ctx, ChannelEvent e) throws Exception {
         if (e instanceof ChannelStateEvent) {
             this.warning(e.toString());
+            System.out.println("¬¬");
         }
         super.handleUpstream(ctx, e);
     }
