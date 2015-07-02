@@ -13,4 +13,5 @@ public class MBeansManagerConfig {
     public static final String STATS_OBJECT = "getStatsObject";
     public static final String QUERY_NODEAGENT = "WebSphere:type=NodeAgent,node=";
     public static final String NODEAGENT = "nodeagent";
+    public static final String QUERY_SERVER_RUNTIME = "WebSphere:*,type=Server,j2eeType=J2EEServer";
 }

@@ -36,7 +36,6 @@ public class Conf {
     private static void readBaseProperties(){
         FileInputStream fileProperties = null;
         try {
-            System.out.println(Constants.PATH_CELLHEALT_PROPERTIES);
             fileProperties = new FileInputStream(Constants.PATH_CELLHEALT_PROPERTIES);
             Properties confProperties = new Properties();
             confProperties.load(fileProperties);

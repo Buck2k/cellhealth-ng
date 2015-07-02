@@ -2,6 +2,7 @@ package cellhealth.core;
 
 import cellhealth.core.connection.WASConnectionSOAP;
 import cellhealth.core.threads.InstanceManager;
+import cellhealth.exception.CellhealthConnectionException;
 import cellhealth.utils.logs.L4j;
 import com.ibm.websphere.management.exception.ConnectorException;
 
@@ -32,11 +33,16 @@ public class cellhealth {
         }
     }
 
-    public static void startCellehealth() throws MalformedObjectNameException, ConnectorException, ReflectionException, AttributeNotFoundException, MBeanException, InstanceNotFoundException {
+    public static void startCellehealth() throws MalformedObjectNameException, ConnectorException, ReflectionException, AttributeNotFoundException, MBeanException, InstanceNotFoundException, CellhealthConnectionException {
+
         L4j.getL4j().info("Iniciando el proceso cellhealth - para la recopilación de métricas de WebSphere");
+
         StartCellhealth startCellhealth = new StartCellhealth(new WASConnectionSOAP());
-        Thread instanceManager = new Thread(new InstanceManager(), "test");
-        instanceManager.start();
+
+//        Thread instanceManager = new Thread(new InstanceManager(), "instanceManager");
+//
+//        instanceManager.start();
+
     }
     public static void showListOfMetrics() throws ConnectorException, MalformedObjectNameException, AttributeNotFoundException, MBeanException, ReflectionException, InstanceNotFoundException {
         ListMetrics listMetrics = new ListMetrics(new WASConnectionSOAP());

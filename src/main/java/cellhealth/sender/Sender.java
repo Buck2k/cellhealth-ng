@@ -5,5 +5,7 @@ package cellhealth.sender;
  */
 public interface Sender {
 
+    public boolean isConnected();
+
     public void send(String metrica);
 }

@@ -1,5 +1,6 @@
 package cellhealth.core.connection;
 
+import cellhealth.core.statistics.MBeanStats;
 import cellhealth.exception.CellhealthConnectionException;
 import cellhealth.utils.constants.MBeansManagerConfig;
 import cellhealth.utils.constants.message.Info;
@@ -96,12 +97,28 @@ public class MBeansManager {
             auxPerfMBean = this.perfMBean;
             auxServerMBean = this.serverMBean;
         } else {
-            this.nodeAgent = this.getNodeAgentMBean(MBeansManagerConfig.NODEAGENT);
             auxPerfMBean = this.getMBean(MBeansManagerConfig.QUERY_PERF, server);
             auxServerMBean = this.getMBean(MBeansManagerConfig.QUERY_SERVER, server);
         }
-        MBeanStatDescriptor mbeanStatDescriptor = new MBeanStatDescriptor(auxServerMBean, new StatDescriptor(new String[]{name}));
+        MBeanStatDescriptor mbeanStatDescriptor = new MBeanStatDescriptor(auxServerMBean, new StatDescriptor(new String[]{}));
         Object[] parameters = new Object[]{mbeanStatDescriptor, new Boolean(true)};
+        String[] signature = new String[]{MBeansManagerConfig.MBEANSTATDESCRIPTOR, MBeansManagerConfig.JAVA_BOOLEAN};
+        return (WSStats)this.client.invoke(auxPerfMBean, MBeansManagerConfig.STATS_OBJECT, parameters, signature);
+    }
+
+
+    public WSStats getStatss(String name, String server) throws Exception {
+        ObjectName auxPerfMBean;
+        ObjectName auxServerMBean;
+        if(server == null) {
+            auxPerfMBean = this.perfMBean;
+            auxServerMBean = this.serverMBean;
+        } else {
+            auxPerfMBean = this.getMBean(MBeansManagerConfig.QUERY_PERF, server);
+            auxServerMBean = this.getMBean(MBeansManagerConfig.QUERY_SERVER, server);
+        }
+        ObjectName jvmRuntime = (ObjectName) this.client.getAttribute(auxServerMBean, "jvmRuntimeModule");
+        Object[] parameters = new Object[]{jvmRuntime, new Boolean(true)};
         String[] signature = new String[]{MBeansManagerConfig.MBEANSTATDESCRIPTOR, MBeansManagerConfig.JAVA_BOOLEAN};
         return (WSStats)this.client.invoke(auxPerfMBean, MBeansManagerConfig.STATS_OBJECT, parameters, signature);
     }
@@ -125,6 +142,15 @@ public class MBeansManager {
         } else {
             L4j.getL4j().info(Info.MBEAN_NOTFOUND_NODO);
             return this.nodeAgent;
+        }
+    }
+
+    public Set<ObjectName> getAllServerRuntimes() throws CellhealthConnectionException {
+        try {
+            return this.getMBeans(MBeansManagerConfig.QUERY_SERVER_RUNTIME);
+        }
+        catch (Exception e) {
+            throw new CellhealthConnectionException(e.toString(), (Throwable)e);
         }
     }
 }

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CellHealt>
+    <MetricGroup type="jvmRuntimeModule">
+        <Prefix>core.jvm</Prefix>
+        <UniqueInstance>true</UniqueInstance>
+        <Metrics>
+            <Metric id="1">
+                <Name>HeapSize</Name>
+                <Scale>1024</Scale>
+            </Metric>
+            <Metric id="3">
+                <Name>Used</Name>
+                <Scale>1024</Scale>
+            </Metric>
+            <Metric id="5">
+                <Name>CpuUsage</Name>
+                <Scale>1024</Scale>
+            </Metric>
+        </Metrics>
+    </MetricGroup>
+</CellHealt>

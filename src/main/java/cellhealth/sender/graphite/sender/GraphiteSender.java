@@ -133,8 +133,20 @@ public class GraphiteSender implements Sender {
         }
 
     }
+
+    public boolean isConnected() {
+        boolean isConnected = false;
+        try {
+            isConnected = this.pipeline.getCurrentPipeline().getChannel().isConnected();
+        } catch (Exception e) {
+            L4j.getL4j().error("isConnected", e);
+        }
+        return isConnected;
+    }
+
     public void send(String metrica) {
         try {
+
             Channel channel = pipeline.getCurrentPipeline().getChannel();
             channel.write(metrica);
         } catch (Exception e) {

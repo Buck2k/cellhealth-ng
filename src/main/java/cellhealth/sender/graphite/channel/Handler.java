@@ -77,7 +77,6 @@ public class Handler extends SimpleChannelUpstreamHandler {
     public void handleUpstream(ChannelHandlerContext ctx, ChannelEvent e) throws Exception {
         if (e instanceof ChannelStateEvent) {
             this.warning(e.toString());
-            System.out.println("¬¬");
         }
         super.handleUpstream(ctx, e);
     }
@@ -114,9 +113,9 @@ public class Handler extends SimpleChannelUpstreamHandler {
     private void warning(String msg) {
         String date=sdf.format(new Date());
         if (startTime < 0) {
-            L4j.getL4j().warning(new StringBuilder(date).append(" ").append(Warning.CONNECTION_IS_DOWN).append(" ").append(msg).toString());
+            L4j.getL4j().warning(new StringBuilder(Warning.CONNECTION_IS_DOWN).append(" ").append(msg).toString());
         } else {
-            L4j.getL4j().warning(new StringBuilder(date).append(": [").append(Warning.UPTIME).append(": ").append(((System.currentTimeMillis() - startTime) / 1000)).append("] ").append(msg).toString());
+            L4j.getL4j().warning(new StringBuilder("[").append(Warning.UPTIME).append(": ").append(((System.currentTimeMillis() - startTime) / 1000)).append("] ").append(msg).toString());
         }
     }
 }

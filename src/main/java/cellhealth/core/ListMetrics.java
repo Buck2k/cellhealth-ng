@@ -3,6 +3,7 @@ package cellhealth.core;
 import cellhealth.core.connection.MBeansManager;
 import cellhealth.core.connection.WASConnection;
 import cellhealth.core.statistics.MBeanStats;
+import cellhealth.utils.Utils;
 import cellhealth.utils.logs.L4j;
 import com.ibm.websphere.management.exception.ConnectorException;
 
@@ -19,7 +20,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 /**
- * Created by alberto on 23/06/15.
+ * Created by Alberto Pascual on 23/06/15.
  */
 public class ListMetrics {
 
@@ -59,7 +60,8 @@ public class ListMetrics {
         System.out.println("\n\n");
         System.out.println("List of MBeans (Statistics)");
         System.out.println("###########################\n\n");
-        this.mostrarStats(typeBeans);
+        System.out.println();
+        //this.mostrarStats(typeBeans);
     }
 
     private void mostrarStats(Set<MBeanStats> typeBeans){
@@ -67,7 +69,7 @@ public class ListMetrics {
             if(mbeanStat.isSubStats()){
                 System.out.println("\n-> " + mbeanStat.getName() + " have " + mbeanStat.getWsStats().getSubStats().length + " SubStats");
                 for(WSStatistic wsStatistic: mbeanStat.getWsStats().getStatistics()){
-                    System.out.println("\t ID:" + wsStatistic.getId() + " name:" + wsStatistic.getName() + " unity: " + wsStatistic.getUnit() + " type:" + this.getWSStatisticType(wsStatistic));
+                    System.out.println("\t ID:" + wsStatistic.getId() + " name:" + wsStatistic.getName() + " unity: " + wsStatistic.getUnit() + " type:" + Utils.getWSStatisticType(wsStatistic));
                     System.out.println("\t Description:" + wsStatistic.getDescription());
                 }
                 Set<MBeanStats> typeBeanSub = new TreeSet<MBeanStats>();
@@ -83,23 +85,12 @@ public class ListMetrics {
             } else {
                 System.out.println("\n-> " + mbeanStat.getName());
                 for(WSStatistic wsStatistic: mbeanStat.getWsStats().getStatistics()){
-                    System.out.println("\t ID:" + wsStatistic.getId() + " name:" + wsStatistic.getName() + " unity: " + wsStatistic.getUnit() + " type:" + this.getWSStatisticType(wsStatistic));
+                    System.out.println("\t ID:" + wsStatistic.getId() + " name:" + wsStatistic.getName() + " unity: " + wsStatistic.getUnit() + " type:" + Utils.getWSStatisticType(wsStatistic));
                     System.out.println("\t Description:" + wsStatistic.getDescription());
                 }
             }
         }
     }
-    private String getWSStatisticType(WSStatistic wsstatistic) {
-        String chain = wsstatistic.toString().replace(" ", "");
-        String[] blocs = chain.split("\\,");
 
-        for(String type: chain.split("\\,")){
-            String[] splitType = type.split("=");
-            if("type".equals(splitType[0])) {
-                return splitType[1];
-            }
-        }
-        return "N/A";
-    }
 
 }
