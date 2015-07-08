@@ -6,12 +6,11 @@ import cellhealth.core.statistics.MBeanStats;
 import cellhealth.utils.Utils;
 import cellhealth.utils.logs.L4j;
 import com.ibm.websphere.management.exception.ConnectorException;
-
+import com.ibm.websphere.pmi.stat.WSJVMStats;
 import com.ibm.websphere.pmi.stat.WSStatistic;
 import com.ibm.websphere.pmi.stat.WSStats;
+import com.ibm.ws.runtime.WSThreadPool;
 
-
-import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanException;
 import javax.management.MalformedObjectNameException;
@@ -21,70 +20,60 @@ import java.util.Set;
 import java.util.TreeSet;
 
 /**
- * Created by Alberto Pascual on 23/06/15.
+ * Created by Alberto Pascual on 7/07/15.
  */
-public class ListMetrics {
+public class TestMetrics {
 
     private MBeansManager mbeansManager;
 
-    public ListMetrics(WASConnection wasConnection) throws ConnectorException, MalformedObjectNameException {
+    public TestMetrics(WASConnection wasConnection) throws ConnectorException, MalformedObjectNameException {
         this.mbeansManager = new MBeansManager(wasConnection);
     }
 
-    public void list() throws ConnectorException, MalformedObjectNameException, MBeanException, ReflectionException, InstanceNotFoundException {
+    public void test(){
+        ObjectName serverMBean = this.mbeansManager.getMBean("WebSphere:type=Server,processType=ManagedProcess,*");
+        Set<ObjectName> queryName = mbeansManager
+                .getMBeans(new StringBuilder("WebSphere:type=threadPoolModule,node=")
+                        .append(serverMBean.getKeyProperty("node"))
+                        .append(",process=")
+                        .append(serverMBean.getKeyProperty("name"))
+                        .append(",*").toString());
+        for(Object objectName: queryName){
+            System.out.println(objectName);
+        }
+    }
+
+    public void listt() throws ConnectorException, MalformedObjectNameException, MBeanException, ReflectionException, InstanceNotFoundException {
+        ObjectName serverMBean = this.mbeansManager.getMBean("WebSphere:type=Server,processType=ManagedProcess,*");
         ObjectName serverPerfMBean = mbeansManager
                 .getMBean(new StringBuilder("WebSphere:type=Perf,node=")
-                        .append("wastestNode01")
+                        .append(serverMBean.getKeyProperty("node"))
                         .append(",process=")
-                        .append("server1")
+                        .append(serverMBean.getKeyProperty("name"))
                         .append(",*").toString());
         Set<MBeanStats> typeBeans = new TreeSet<MBeanStats>();
-        L4j.getL4j().info(new StringBuilder("Getting the list of names and possible metric of the node: ").append(serverPerfMBean.getKeyProperty("node")).append(", instance: ").append(serverPerfMBean.getKeyProperty("process")).toString());
+        L4j.getL4j().info(new StringBuilder("Getting the list of names and possible metric of the node: ").append(serverMBean.getKeyProperty("node")).append(", instance: ").append(serverMBean.getKeyProperty("name")).toString());
         try {
             for(ObjectName objectName: mbeansManager.getMBeans("WebSphere:*")){
 
                 String[] signature = new String[] {"javax.management.ObjectName","java.lang.Boolean"};
                 Object[] params = new Object[] {objectName, new Boolean(true)};
                 WSStats wsStats = (WSStats) mbeansManager.getClient().invoke(serverPerfMBean, "getStatsObject", params, signature);
-                //WSStats[] wsStatsArr = (WSStats[]) mbeansManager.getClient().invoke(serverPerfMBean, "getStatsObject", params, signature);
                 if(wsStats != null) {
                     MBeanStats mbeanStats = new MBeanStats();
-                    mbeanStats.setObjectName(objectName);
                     mbeanStats.setName(wsStats.getName());
                     mbeanStats.setSubStats((wsStats.getSubStats().length > 0));
                     mbeanStats.setWsStats(wsStats);
-                    //mbeanStats.setCant(wsStatsArr.length);
                     typeBeans.add(mbeanStats);
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         System.out.println("\n\n");
         System.out.println("List of MBeans (Statistics)");
         System.out.println("###########################\n\n");
         System.out.println();
-        for(MBeanStats t: typeBeans) {
-            System.out.println("\n\nNombre del MBean que contiene las metricas " + t.getObjectName().getKeyProperty("name"));
-            System.out.println("\n\t Nombre de las metricas (1 nivel): " + t.getWsStats().getName());
-            if(t.isSubStats()){
-                for(WSStats stats:t.getWsStats().getSubStats()){
-                    System.out.println("\t Nombre de las metricas (2 nivel): " + stats.getName());
-                    for(WSStatistic statistic:stats.getStatistics()){
-                        System.out.print("\t\t id :" + statistic.getId());
-                        System.out.println(" nombre :" + statistic.getName());
-                        System.out.println("\t\t Descripcion :" + statistic.getDescription());
-                    }
-                }
-            } else {
-                for(WSStatistic statistic:t.getWsStats().getStatistics()){
-                    System.out.print("\t\t id :" + statistic.getId());
-                    System.out.println(" nombre :" + statistic.getName());
-                    System.out.println("\t\t Descripcion :" + statistic.getDescription());
-                }
-            }
-        }
         //this.mostrarStats(typeBeans);
     }
 
@@ -115,6 +104,4 @@ public class ListMetrics {
             }
         }
     }
-
-
 }

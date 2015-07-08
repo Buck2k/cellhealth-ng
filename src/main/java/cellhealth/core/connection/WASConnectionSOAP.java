@@ -11,10 +11,6 @@ import com.ibm.websphere.management.exception.ConnectorException;
 import java.security.Security;
 import java.util.Properties;
 
-/**
- * Created by Albero Pascual on 10/06/15.
- */
-
 public class WASConnectionSOAP implements WASConnection {
 
     private Properties props;          // Connection properties

@@ -10,6 +10,7 @@ import com.ibm.websphere.pmi.stat.WSBoundaryStatistic;
 import com.ibm.websphere.pmi.stat.WSBoundedRangeStatistic;
 import com.ibm.websphere.pmi.stat.WSCountStatistic;
 import com.ibm.websphere.pmi.stat.WSDoubleStatistic;
+import com.ibm.websphere.pmi.stat.WSJVMStats;
 import com.ibm.websphere.pmi.stat.WSRangeStatistic;
 import com.ibm.websphere.pmi.stat.WSStatistic;
 import com.ibm.websphere.pmi.stat.WSStats;
@@ -28,7 +29,7 @@ public class Capturer {
     private String serverName;
     private String node;
     private List<MetricGroup> metricGroups;
-
+    private ObjectName serverPerfMBean;
 
     public Capturer(MBeansManager mbeansManager, String node, String serverName, List<MetricGroup> metricGroups) {
         this.mbeansManager = mbeansManager;
@@ -37,12 +38,13 @@ public class Capturer {
         this.metricGroups = metricGroups;
     }
 
-    public String getStats() throws Exception {
+    public List<String> getStats() throws Exception {
+        List<String> stats = new LinkedList<String>();
         if(!"dmgr".equals(serverName)) {
-            ObjectName serverPerfMBean = mbeansManager.getMBean("WebSphere:type=Perf,node=" + this.node + ",process=" + this.serverName + ",*");
+            this.serverPerfMBean = mbeansManager.getMBean("WebSphere:type=Perf,node=" + this.node + ",process=" + this.serverName + ",*");
             Map<String, WSStats> statsMap = new TreeMap<String, WSStats>();
             try {
-                for(ObjectName objectName: mbeansManager.getMBeans("WebSphere:*")){
+                for(ObjectName objectName: mbeansManager.getMBeans("WebSphere:node=" + this.node + ",process=" + this.serverName + ",*")){
                     String[] signature = new String[] {"javax.management.ObjectName","java.lang.Boolean"};
                     Object[] params = new Object[] {objectName, true};
                     WSStats wsStats = (WSStats) mbeansManager.getClient().invoke(serverPerfMBean, "getStatsObject", params, signature);
@@ -54,21 +56,18 @@ public class Capturer {
                 e.printStackTrace();
             }
             for(MetricGroup metricGroup: this.metricGroups){
-                for(String line:getStatsType(metricGroup, statsMap)){
-                    System.out.println(line);
-                }
+                stats.addAll(getStatsType(metricGroup, statsMap));
             }
         }
-        return "";
+        return stats;
     }
 
     public List<String> getStatsType(MetricGroup metricGroup, Map<String, WSStats> statsMap) throws Exception {
         List<String> result = new LinkedList<String>();
-
         if(metricGroup == null || metricGroup.getMetrics() == null || metricGroup.getType() == null || metricGroup.getMetrics().size() == 0) {
             throw new IllegalArgumentException();
         }
-        String prefix = metricGroup.getPrefix();
+        String prefix = this.serverPerfMBean.getKeyProperty("cell") + "." + this.serverPerfMBean.getKeyProperty("process") + "." + metricGroup.getPrefix();
         WSStats stats = statsMap.get(metricGroup.getType());
         if(stats == null){
             L4j.getL4j().info("Unable to get " + metricGroup.getType() + " Stats for server: " + this.serverName);

@@ -23,7 +23,6 @@ public class ReadMetricXml {
     private Document dom;
 
     public ReadMetricXml() {
-        System.out.println("ENTRAAA");
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         try {
             DocumentBuilder db = dbf.newDocumentBuilder();

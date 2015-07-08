@@ -9,6 +9,7 @@ import javax.management.InstanceNotFoundException;
 import javax.management.MBeanException;
 import javax.management.MalformedObjectNameException;
 import javax.management.ReflectionException;
+import java.util.List;
 
 /**
  * Created by Alberto Pascual on 19/06/15.
@@ -25,7 +26,14 @@ public class MetricsCollector implements Runnable {
 
     public void run() {
         try {
-            capturer.getStats();
+            long start_time=System.currentTimeMillis();
+            List<String> metrics = capturer.getStats();
+            long end_time=System.currentTimeMillis();
+            String elapsed=Long.toString(end_time-start_time);
+            System.out.println("Test whit system milis " + elapsed);
+            for(String metric: metrics){
+                sender.send(metric);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

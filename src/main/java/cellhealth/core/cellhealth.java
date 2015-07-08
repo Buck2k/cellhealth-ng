@@ -1,7 +1,9 @@
 package cellhealth.core;
 
+import cellhealth.core.connection.WASConnection;
 import cellhealth.core.connection.WASConnectionSOAP;
 import cellhealth.core.threads.InstanceManager;
+import cellhealth.core.threads.Metrics.ThreadManager;
 import cellhealth.exception.CellhealthConnectionException;
 import cellhealth.utils.logs.L4j;
 import com.ibm.websphere.management.exception.ConnectorException;
@@ -27,6 +29,10 @@ public class cellhealth {
                 start = false;
                 showListOfMetrics();
             }
+            if("-t".equals(arg)){
+                start = false;
+                throwTest();
+            }
         }
         if(start){
             startCellehealth();
@@ -37,15 +43,23 @@ public class cellhealth {
 
         L4j.getL4j().info("Iniciando el proceso cellhealth - para la recopilación de métricas de WebSphere");
 
-        StartCellhealth startCellhealth = new StartCellhealth(new WASConnectionSOAP());
+        WASConnectionSOAP connection = new WASConnectionSOAP();
+        ThreadManager manager = new ThreadManager(connection);
+        Thread threadManager = new Thread(manager,"manager");
+        threadManager.start();
+        //StartCellhealth startCellhealth = new StartCellhealth(new WASConnectionSOAP());
+        //Thread instanceManager = new Thread(new InstanceManager(), "instanceManager");
 
-//        Thread instanceManager = new Thread(new InstanceManager(), "instanceManager");
-//
-//        instanceManager.start();
+        //instanceManager.start();
 
     }
     public static void showListOfMetrics() throws ConnectorException, MalformedObjectNameException, AttributeNotFoundException, MBeanException, ReflectionException, InstanceNotFoundException {
         ListMetrics listMetrics = new ListMetrics(new WASConnectionSOAP());
         listMetrics.list();
+    }
+
+    public static void throwTest() throws ConnectorException, MalformedObjectNameException, AttributeNotFoundException, MBeanException, ReflectionException, InstanceNotFoundException {
+        TestMetrics listMetrics = new TestMetrics(new WASConnectionSOAP());
+        listMetrics.test();
     }
 }
