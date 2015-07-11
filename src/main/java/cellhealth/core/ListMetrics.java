@@ -67,6 +67,7 @@ public class ListMetrics {
         System.out.println();
         for(MBeanStats t: typeBeans) {
             System.out.println("\n\nNombre del MBean que contiene las metricas " + t.getObjectName().getKeyProperty("name"));
+            System.out.println(t.getObjectName());
             System.out.println("\n\t Nombre de las metricas (1 nivel): " + t.getWsStats().getName());
             if(t.isSubStats()){
                 for(WSStats stats:t.getWsStats().getSubStats()){
