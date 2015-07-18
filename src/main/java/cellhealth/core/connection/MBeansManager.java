@@ -1,14 +1,15 @@
 package cellhealth.core.connection;
 
-import cellhealth.exception.CellhealthConnectionException;
 import cellhealth.utils.constants.MBeansManagerConfig;
-
 import cellhealth.utils.logs.L4j;
+
 import com.ibm.websphere.management.AdminClient;
 import com.ibm.websphere.management.exception.ConnectorException;
+import com.ibm.websphere.management.exception.ConnectorNotAvailableException;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+
 import java.util.Set;
 
 public class MBeansManager {
@@ -26,6 +27,7 @@ public class MBeansManager {
         Set<ObjectName> beans = null;
         try {
              beans = this.client.queryNames(new ObjectName(query), null);
+        } catch (ConnectorNotAvailableException e) {
         } catch (ConnectorException e) {
             L4j.getL4j().error("MBeansManager, Error in the connector", e);
         } catch (MalformedObjectNameException e) {
@@ -36,19 +38,26 @@ public class MBeansManager {
 
     public ObjectName getMBean(String query) {
         Set mbeans = this.getMBeans(query);
-        return (ObjectName)mbeans.iterator().next();
+        ObjectName objectName = null;
+        if(mbeans != null && mbeans.size() > 0) {
+            objectName = (ObjectName) mbeans.iterator().next();
+        }
+        return objectName;
     }
 
     public AdminClient getClient(){
         return this.client;
     }
 
-    public Set getAllServerRuntimes() throws CellhealthConnectionException {
-        try {
+    public Set getAllServerRuntimes()  {
             return this.getMBeans(MBeansManagerConfig.QUERY_SERVER_RUNTIME);
-        }
-        catch (Exception e) {
-            throw new CellhealthConnectionException(e.toString(), e);
-        }
+    }
+
+    public String getNodeServerMBean(){
+        String node = "";
+        try {
+            node = this.client.getServerMBean().getKeyProperty("node");
+        } catch (ConnectorException e) {}
+        return node;
     }
 }

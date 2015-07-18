@@ -1,4 +1,4 @@
-package cellhealth.utils.properties;
+package cellhealth.utils.properties.xml;
 
 /**
  * Created by alberto on 1/07/15.

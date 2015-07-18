@@ -2,8 +2,6 @@ package cellhealth.core.threads;
 
 import cellhealth.sender.graphite.sender.GraphiteSender;
 
-import java.util.Date;
-
 /**
  * Created by Alberto Pascual on 19/06/15.
  */
@@ -22,8 +20,8 @@ public class InstanceManager implements Runnable {
         while(true){
             //System.out.println(new Date());
             if(frisTime) {
-                System.out.println(tt++);
-                gs.send("try");
+                //System.out.println(tt++);
+                //gs.send("try");
             }
             frisTime = true;
             try {

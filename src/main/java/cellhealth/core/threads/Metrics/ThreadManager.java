@@ -2,14 +2,16 @@ package cellhealth.core.threads.Metrics;
 
 import cellhealth.core.connection.MBeansManager;
 import cellhealth.core.connection.WASConnection;
-import cellhealth.core.threads.MetricsCollector;
-import cellhealth.exception.CellhealthConnectionException;
+import cellhealth.core.connection.WASConnectionSOAP;
+import cellhealth.core.statistics.Capturer;
 import cellhealth.sender.Sender;
 import cellhealth.sender.graphite.sender.GraphiteSender;
 import cellhealth.utils.constants.Constants;
 import cellhealth.utils.logs.L4j;
-import cellhealth.utils.properties.MetricGroup;
-import cellhealth.utils.properties.ReadMetricXml;
+import cellhealth.utils.properties.xml.MetricGroup;
+import com.ibm.websphere.management.exception.ConnectorException;
+import com.ibm.websphere.management.exception.ConnectorNotAvailableException;
+
 import javax.management.ObjectName;
 import java.util.Date;
 import java.util.List;
@@ -24,16 +26,18 @@ import java.util.concurrent.TimeUnit;
 public class ThreadManager implements Runnable {
 
     private WASConnection wasConnection;
+    private Sender sender;
     private MBeansManager mbeansManager;
+    private List<MetricGroup> metricGroups;
     private boolean throwThreads;
     private boolean isWaiting;
 
-    public ThreadManager(WASConnection wasConnection) {
-        this.wasConnection = wasConnection;
-        this.startMBeansManager();
+    public ThreadManager(List<MetricGroup> metricGroups) {
+        this.metricGroups = metricGroups;
+        this.connectToWebSphere();
+        this.sender = this.getSender();
         this.throwThreads = true;
         this.isWaiting = !this.throwThreads;
-
     }
 
     private void startMBeansManager()  {
@@ -41,20 +45,10 @@ public class ThreadManager implements Runnable {
     }
 
     public void run() {
-        ReadMetricXml readMetricXml = new ReadMetricXml();
-        List<MetricGroup> metricGroups = readMetricXml.getMetricGroup();
-        Set<ObjectName> runtimes = null;
-        try {
-            runtimes = mbeansManager.getAllServerRuntimes();
-        } catch (CellhealthConnectionException e) {
-            L4j.getL4j().error(", e");
-        }
-        int instances = runtimes.size();
-        GraphiteSender sender = new GraphiteSender();
-        sender.init();
+        this.showInstances();
         while(throwThreads){
             try {
-                throwThreads(instances, sender, runtimes, metricGroups);
+                this.launchThreads();
                 Thread.sleep(60000l);
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -63,24 +57,16 @@ public class ThreadManager implements Runnable {
         }
     }
 
-    private void throwThreads(int instances, Sender sender, Set<ObjectName> runtimes, List<MetricGroup> metricGroups) {
+    private void launchThreads() {
+        Set<ObjectName> runtimes = this.mbeansManager.getAllServerRuntimes();
         Date timeCountStart = new Date();
-        ExecutorService executor = Executors.newFixedThreadPool(instances);
-        while(!sender.isConnected()){
-            try {
-                L4j.getL4j().warning("The sender is not connected , waiting to connect");
-                Thread.sleep(6000l);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+        ExecutorService executor = Executors.newFixedThreadPool(runtimes.size());
+        checkConnections();
         for(ObjectName serverRuntime: runtimes){
-            final String serverName = serverRuntime.getKeyProperty(Constants.NAME);
-            final String node = serverRuntime.getKeyProperty(Constants.NODE);
-            String showServerHost = (( node==null ) || ( node.length() == 0 ))?"<NOT SET IN CONFIG>":node;
-            L4j.getL4j().info("SERVER :" + serverName + " OVER MACHINE: " + showServerHost);
-            final Capturer capturer = new Capturer(mbeansManager, node, serverName, metricGroups);
-            Runnable worker = new MetricsCollector(capturer, sender);
+            String serverName = serverRuntime.getKeyProperty(Constants.NAME);
+            String node = serverRuntime.getKeyProperty(Constants.NODE);
+            Capturer capturer = new Capturer(this.mbeansManager, node, serverName, this.metricGroups);
+            Runnable worker = new MetricsCollector(capturer, this.sender);
             executor.execute(worker);
         }
         executor.shutdown();
@@ -93,7 +79,7 @@ public class ThreadManager implements Runnable {
         while(waitToThreads){
             Long elapsed = timeCountStart.getTime() - new Date().getTime();
             if(executor.isTerminated()){
-                System.out.println("Ha " + elapsed);
+                L4j.getL4j().info("It has been slow to catch all the metrics " + elapsed);
                 waitToThreads = false;
             }
             if(elapsed == 60000l){
@@ -101,6 +87,15 @@ public class ThreadManager implements Runnable {
             }
         }
 
+    }
+    public void connectToWebSphere(){
+        this.wasConnection = new WASConnectionSOAP();
+        this.startMBeansManager();
+    }
+    public Sender getSender(){
+        GraphiteSender sender = new GraphiteSender();
+        sender.init();
+        return sender;
     }
 
     public void setThrowThreads(boolean throwThreads) {
@@ -111,4 +106,33 @@ public class ThreadManager implements Runnable {
     public boolean isWaiting() {
         return isWaiting;
     }
+
+    public void checkConnections(){
+        try {
+            mbeansManager.getClient().isAlive();
+        } catch (ConnectorException e) {
+            if(e instanceof ConnectorNotAvailableException){
+                connectToWebSphere();
+            }
+        }
+        while(!sender.isConnected()){
+            try {
+                L4j.getL4j().warning("The sender is not connected , waiting to connect");
+                Thread.sleep(6000l);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void showInstances(){
+        Set<ObjectName> runtimes = this.mbeansManager.getAllServerRuntimes();
+        for(ObjectName serverRuntime: runtimes){
+            String serverName = serverRuntime.getKeyProperty(Constants.NAME);
+            String node = serverRuntime.getKeyProperty(Constants.NODE);
+            String showServerHost = (( node==null ) || ( node.length() == 0 ))?"<NOT SET IN CONFIG>":node;
+            L4j.getL4j().info("SERVER :" + serverName + " OVER MACHINE: " + showServerHost);
+        }
+    }
+
 }

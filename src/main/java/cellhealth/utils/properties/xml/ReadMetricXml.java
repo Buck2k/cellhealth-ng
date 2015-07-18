@@ -1,7 +1,8 @@
-package cellhealth.utils.properties;
+package cellhealth.utils.properties.xml;
 
 
 import cellhealth.utils.constants.Constants;
+import cellhealth.utils.logs.L4j;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -27,11 +28,11 @@ public class ReadMetricXml {
         try {
             DocumentBuilder db = dbf.newDocumentBuilder();
             this.dom = db.parse(Constants.PATH_METRIC_PROPERTIES);
-        }catch(ParserConfigurationException pce) {
+        } catch (ParserConfigurationException pce) {
             pce.printStackTrace();
-        }catch(SAXException se) {
+        } catch (SAXException se) {
             se.printStackTrace();
-        }catch(IOException ioe) {
+        } catch (IOException ioe) {
             ioe.printStackTrace();
         }
     }
@@ -44,8 +45,8 @@ public class ReadMetricXml {
             for (int i = 0; i < nodeList.getLength(); i++) {
                 Node node = nodeList.item(i);
                 if (node.getNodeType() == Node.ELEMENT_NODE) {
-                    if("MetricGroup".equals(node.getNodeName())){
-                        Element element = (Element)node;
+                    if ("MetricGroup".equals(node.getNodeName())) {
+                        Element element = (Element) node;
                         metricProperties.add(getMetricGroupProperties(node, element));
                     }
                 }
@@ -54,23 +55,28 @@ public class ReadMetricXml {
         }
         return metricProperties;
     }
-    private MetricGroup getMetricGroupProperties(Node node, Element element){
+
+    private MetricGroup getMetricGroupProperties(Node node, Element element) {
         MetricGroup metricGroup = new MetricGroup();
-        metricGroup.setType(element.getAttribute("type"));
+        metricGroup.setStatsType(getStringValue(element, "StatsType"));
         metricGroup.setPrefix(getStringValue(element, "Prefix"));
         metricGroup.setUniqueInstance(getBooleanValue(element, "UniqueInstance"));
+        metricGroup.setInstanceFilter(getInstanceFilter(element, "InstanceFilter"));
         List<Metric> metrics = getMetriGroupMetrics(node.getChildNodes());
         metricGroup.setMetrics(metrics);
+        if(metricGroup.getStatsType() == null || metricGroup.getPrefix() == null) {
+            L4j.getL4j().error("Metrics.xml", new NullPointerException());
+        }
         return metricGroup;
     }
 
-    private List<Metric> getMetriGroupMetrics(NodeList nodeList){
+    private List<Metric> getMetriGroupMetrics(NodeList nodeList) {
         List<Metric> metrics = new LinkedList<Metric>();
         if (nodeList != null && nodeList.getLength() > 0) {
             for (int i = 0; i < nodeList.getLength(); i++) {
                 Node node = nodeList.item(i);
                 if (node.getNodeType() == Node.ELEMENT_NODE) {
-                    if("Metrics".equals(node.getNodeName())){
+                    if ("Metrics".equals(node.getNodeName())) {
                         metrics = getMetriGroupMetrics(node.getChildNodes());
                     } else if ("Metric".equals(node.getNodeName())) {
                         Metric metric = getMetricGroupMetricProperties((Element) node);
@@ -84,7 +90,11 @@ public class ReadMetricXml {
 
     private Metric getMetricGroupMetricProperties(Element element) {
         Metric metric = new Metric();
-        metric.setId(Integer.parseInt(element.getAttribute("id")));
+        String id = element.getAttribute("id");
+        if(id == null){
+            L4j.getL4j().error("Metrics.xml", new NullPointerException());
+        }
+        metric.setId(Integer.parseInt(id));
         metric.setName(getStringValue(element, "Name"));
         metric.setScale(getIntValue(element, "Scale"));
         return metric;
@@ -93,18 +103,40 @@ public class ReadMetricXml {
     private String getStringValue(Element element, String tagName) {
         String string = null;
         NodeList nl = element.getElementsByTagName(tagName);
-        if(nl != null && nl.getLength() > 0) {
-            Element aux = (Element)nl.item(0);
+        if (nl != null && nl.getLength() > 0) {
+            Element aux = (Element) nl.item(0);
             string = aux.getFirstChild().getNodeValue();
         }
         return string;
     }
 
     private boolean getBooleanValue(Element element, String tagName) {
-        return Boolean.valueOf(getStringValue(element, tagName));
+        String bool = "false";
+        if("UniqueInstance".equals(tagName)){
+            if(getStringValue(element, tagName) != null){
+                bool = getStringValue(element, tagName);
+            }
+        }
+        return Boolean.valueOf(bool);
     }
 
     private int getIntValue(Element element, String tagName) {
-        return Integer.parseInt(getStringValue(element, tagName));
+        if(getStringValue(element, tagName) != null) {
+            return Integer.parseInt(getStringValue(element, tagName));
+        }
+        return 0;
+    }
+
+    private List<String> getInstanceFilter(Element element, String tagName) {
+        List<String> listInstances = new LinkedList<String>();
+        tagName = getStringValue(element, tagName);
+        if(tagName != null) {
+            String aux = tagName.replace(" ", "");
+            for (String split : aux.split(",")) {
+                split = split.replace(",", "");
+                listInstances.add(split);
+            }
+        }
+        return listInstances;
     }
 }

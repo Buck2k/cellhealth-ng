@@ -1,6 +1,6 @@
 package cellhealth.utils.logs;
 
-import cellhealth.utils.properties.Conf;
+import cellhealth.utils.properties.Settings;
 import org.apache.log4j.*;
 
 /**
@@ -17,12 +17,12 @@ public class L4j {
 
     private L4j(){
         ConsoleAppender console = new ConsoleAppender();
-        console.setName(Conf.propertie().L4JNAME);
-        console.setLayout(new PatternLayout(Conf.propertie().L4JPATTERN));
+        console.setName(Settings.propertie().L4JNAME);
+        console.setLayout(new PatternLayout(Settings.propertie().L4JPATTERN));
         console.setThreshold(Level.INFO);
         console.activateOptions();
         Logger.getRootLogger().addAppender(console);
-        log = Logger.getLogger(Conf.propertie().L4JGETLOGGER);
+        log = Logger.getLogger(Settings.propertie().L4JGETLOGGER);
     }
 
     public static L4j getL4j() {
@@ -31,15 +31,15 @@ public class L4j {
 
     public void setConfig(String filename, String level) {
         FileAppender fileAppender = new FileAppender();
-        fileAppender.setName(Conf.propertie().APPNAME);
+        fileAppender.setName(Settings.propertie().APPNAME);
         fileAppender.setFile(filename);
-        fileAppender.setLayout(new PatternLayout(Conf.propertie().L4JPATTERNCONFIG));
+        fileAppender.setLayout(new PatternLayout(Settings.propertie().L4JPATTERNCONFIG));
         fileAppender.setThreshold(Level.toLevel(level));
         fileAppender.setAppend(true);
         fileAppender.activateOptions();
         Logger.getRootLogger().getLoggerRepository().resetConfiguration();
         Logger.getRootLogger().addAppender(fileAppender);
-        log = Logger.getLogger(Conf.propertie().APPNAME);
+        log = Logger.getLogger(Settings.propertie().APPNAME);
     }
 
     public void critical(String msg) {

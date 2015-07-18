@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<CellHealt>
-    <MetricGroup type="jvmRuntimeModule">
-        <Prefix>core.jvm</Prefix>
+<CellHealthMetrics>
+    <!--- Si no esta la propiedad MBean="server1", cojera por defecto el MBean con el nombre de la instacia o servidor, tambien se podrá especificar        <MetricGroup MBean="JVM"> -->
+    <MetricGroup>
+        <StatsType>jvmRuntimeModule</StatsType>
+        <Prefix>jvm</Prefix>
         <UniqueInstance>true</UniqueInstance>
         <Metrics>
             <Metric id="1">
@@ -14,8 +16,105 @@
             </Metric>
             <Metric id="5">
                 <Name>CpuUsage</Name>
-                <Scale>1024</Scale>
             </Metric>
         </Metrics>
     </MetricGroup>
-</CellHealt>
+
+    <MetricGroup>
+        <StatsType>threadPoolModule</StatsType>
+        <Prefix>Thrpool</Prefix>
+        <UniqueInstance>false</UniqueInstance> deafult FALSE
+        <InstanceFilter>SoapConnector,SIBFAPThreadPool</InstanceFilter> YEsNULL
+        <Metrics>
+            <Metric id="3"> ID NONULL
+                <Name>ActiveCount</Name>
+            </Metric>
+            <Metric id="4">
+                <Name>PoolSize</Name>
+            </Metric>
+            <Metric id="8">
+                <Name>ConcurrentHungThreadCount</Name>
+            </Metric>
+        </Metrics>
+    </MetricGroup>
+
+    <MetricGroup>
+        <StatsType >transactionModule</StatsType>
+        <Prefix>transaction</Prefix>
+        <UniqueInstance>false</UniqueInstance>
+        <Metrics>
+            <Metric id="4">
+                <Name>ActiveCount</Name>
+            </Metric>
+        </Metrics>
+    </MetricGroup>
+
+    <MetricGroup>
+        <StatsType>connectionPoolModule</StatsType>
+        <Prefix>conpool</Prefix>
+        <UniqueInstance>false</UniqueInstance>
+        <Metrics>
+            <Metric id="5">
+                <Name>PoolSize</Name>
+            </Metric>
+            <Metric id="6">
+                <Name>FreePoolSize</Name>
+            </Metric>
+            <Metric id="7">
+                <Name>WaitingThreadCount</Name>
+            </Metric>
+        </Metrics>
+    </MetricGroup>
+
+    <MetricGroup>
+        <StatsType>j2cModule</StatsType>
+        <Prefix>j2c</Prefix>
+        <UniqueInstance>false</UniqueInstance>
+        <Metrics>
+            <Metric id="7"/>
+        </Metrics>
+    </MetricGroup>
+
+    <MetricGroup>
+        <StatsType>servletSessionsModule</StatsType>
+        <Prefix>servlets</Prefix>
+        <UniqueInstance>false</UniqueInstance>
+        <Metrics>
+            <Metric id="7">
+                <Name>ConcurrentSessions</Name>
+            </Metric>
+        </Metrics>
+    </MetricGroup>
+
+    <MetricGroup>
+        <StatsType >webAppModule</StatsType>
+        <Prefix>webapp</Prefix>
+        <UniqueInstance>true</UniqueInstance>
+        <Metrics>
+            <Metric id="13"/>
+        </Metrics>
+    </MetricGroup>
+
+</CellHealthMetrics>
+
+<!--<?xml version="1.0" encoding="UTF-8"?>-->
+<!--<CellHealt>-->
+    <!--<MetricGroup type="jvmRuntimeModule">-->
+        <!--<Prefix>core.jvm</Prefix>-->
+        <!--<UniqueInstance>true</UniqueInstance>-->
+        <!--<Metrics>-->
+            <!--<Metric id="1">-->
+                <!--<Name>HeapSize</Name>-->
+                <!--<Scale>1024</Scale>-->
+            <!--</Metric>-->
+            <!--<Metric id="3">-->
+                <!--<Name>Used</Name>-->
+                <!--<Scale>1024</Scale>-->
+            <!--</Metric>-->
+            <!--<Metric id="5">-->
+                <!--<Name>CpuUsage</Name>-->
+                <!--<Scale>1024</Scale>-->
+            <!--</Metric>-->
+        <!--</Metrics>-->
+    <!--</MetricGroup>-->
+<!--</CellHealt>-->

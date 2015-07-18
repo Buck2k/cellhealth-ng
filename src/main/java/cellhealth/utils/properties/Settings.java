@@ -10,9 +10,9 @@ import java.util.Properties;
  * Created by Alberto Pascual on 8/06/15.
  */
 
-public class Conf {
+public class Settings {
 
-    private static Conf instance;
+    private static Settings instance;
 
     public static String HOST_WEBSPHERE;
     public static String PORT_WEBSPHERE;
@@ -23,11 +23,11 @@ public class Conf {
     public static String L4JGETLOGGER;
 
 
-    private Conf(){}
+    private Settings(){}
 
-    public static Conf propertie(){
+    public static Settings propertie(){
         if(instance == null) {
-            instance = new Conf();
+            instance = new Settings();
             readBaseProperties();
         }
         return instance;

@@ -1,4 +1,4 @@
-package cellhealth.utils.properties;
+package cellhealth.utils.properties.xml;
 
 import java.util.List;
 
@@ -7,19 +7,20 @@ import java.util.List;
  */
 public class MetricGroup {
 
-    private String type;
+    private String statsType;
     private String prefix;
     private boolean uniqueInstance;
+    private List<String> InstanceFilter;
     private List<Metric> metrics;
 
     public MetricGroup(){}
 
-    public String getType() {
-        return type;
+    public String getStatsType() {
+        return statsType;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setStatsType(String statsType) {
+        this.statsType = statsType;
     }
 
     public String getPrefix() {
@@ -38,6 +39,14 @@ public class MetricGroup {
         this.uniqueInstance = uniqueInstance;
     }
 
+    public List<String> getInstanceFilter() {
+        return InstanceFilter;
+    }
+
+    public void setInstanceFilter(List<String> instanceFilter) {
+        InstanceFilter = instanceFilter;
+    }
+
     public List<Metric> getMetrics() {
         return metrics;
     }
@@ -45,4 +54,5 @@ public class MetricGroup {
     public void setMetrics(List<Metric> metrics) {
         this.metrics = metrics;
     }
+
 }

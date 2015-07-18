@@ -66,7 +66,7 @@ public class GraphiteSender implements Sender {
         this.graphiteProperties.setProperty("port", "2045");
         this.graphiteProperties.setProperty("reconnectTimeout","60");
         this.graphiteProperties.setProperty("sendBufferSize", "1048576");
-        this.graphiteProperties.setProperty("hostPRefix", "pro.bbdd");
+        this.graphiteProperties.setProperty("hostPrefix", "pro.bbdd");
         this.graphiteProperties.setProperty("metricUseHost", "true");
         this.graphiteProperties.setProperty("hostSuffix", "wls");
         this.graphiteProperties.setProperty("metricDefaultHost", "default_host");
@@ -144,11 +144,14 @@ public class GraphiteSender implements Sender {
         return isConnected;
     }
 
-    public void send(String metrica) {
+    public void send(String host, String metrica) {
         try {
-
+            String prefix = this.graphiteProperties.getProperty("hostPrefix");
+            String sufix = this.graphiteProperties.getProperty("hostSuffix");
+            String graphiteMetric = prefix + "." + host + "." + sufix + "." + metrica + "\n";
+            System.out.println(graphiteMetric);
             Channel channel = pipeline.getCurrentPipeline().getChannel();
-            channel.write(metrica);
+            channel.write(graphiteMetric);
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -7,5 +7,5 @@ public interface Sender {
 
     public boolean isConnected();
 
-    public void send(String metrica);
+    public void send(String host, String metrica);
 }

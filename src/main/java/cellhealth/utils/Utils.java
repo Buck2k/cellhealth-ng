@@ -18,4 +18,7 @@ public class Utils {
         }
         return "N/A";
     }
+    public static String getHostByNode(String node){
+        return node.replace("Node", "");
+    }
 }
