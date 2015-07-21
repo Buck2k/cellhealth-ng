@@ -10,6 +10,17 @@ public class MetricGroup {
     private String statsType;
     private String prefix;
     private boolean uniqueInstance;
+    private boolean allowGlobal;
+
+
+    public void setAllowGlobal(boolean allowGlobal) {
+        this.allowGlobal = allowGlobal;
+    }
+
+    public boolean getAllowGlobal(){
+        return this.allowGlobal;
+    }
+
     private List<String> InstanceFilter;
     private List<Metric> metrics;
 

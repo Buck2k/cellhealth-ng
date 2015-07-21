@@ -149,7 +149,7 @@ public class GraphiteSender implements Sender {
             String prefix = this.graphiteProperties.getProperty("hostPrefix");
             String sufix = this.graphiteProperties.getProperty("hostSuffix");
             String graphiteMetric = prefix + "." + host + "." + sufix + "." + metrica + "\n";
-            System.out.println(graphiteMetric);
+            //System.out.println(graphiteMetric);
             Channel channel = pipeline.getCurrentPipeline().getChannel();
             channel.write(graphiteMetric);
         } catch (Exception e) {

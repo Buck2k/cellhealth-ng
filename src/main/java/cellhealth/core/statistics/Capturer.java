@@ -58,11 +58,29 @@ public class Capturer {
         List<String> stats = new LinkedList<String>();
         if (wsStats != null) {
             for (MetricGroup metricGroup : this.metricGroups) {
-                WSStats auxStats = wsStats.getStats(metricGroup.getStatsType());
-                if (auxStats != null) {
-                    stats.addAll(getStatsType(metricGroup, auxStats));
+                WSStats auxStats = null;
+                if(!metricGroup.isUniqueInstance()){
+                    if(metricGroup.getInstanceFilter() == null || metricGroup.getInstanceFilter().size() > 0) {
+                        for (String instance : metricGroup.getInstanceFilter()) {
+                            auxStats = findStatsByMetricGroupType(instance, wsStats);
+                            if (auxStats != null) {
+                                stats.addAll(getStatsType(metricGroup, auxStats));
+                            } else {
+                                L4j.getL4j().warning("Node: " + this.node + " Server: " + this.serverName + " Not fount statstype " + metricGroup.getStatsType());
+                            }
+                        }
+                    } else {
+                        for(WSStats allstats: getAllInstances(metricGroup.getStatsType(), wsStats)){
+                            stats.addAll(getStatsType(metricGroup, allstats));
+                        }
+                    }
                 } else {
-                    //L4j.getL4j().warning("Node: " + this.node + "Server: " + this.serverName + " Not fount statstype " + metricGroup.getStatsType());
+                    auxStats = findStatsByMetricGroupType(metricGroup.getStatsType(), wsStats);
+                    if (auxStats != null) {
+                        stats.addAll(getStatsType(metricGroup, auxStats));
+                    } else {
+                        L4j.getL4j().warning("Node: " + this.node + " Server: " + this.serverName + " Not fount statstype " + metricGroup.getStatsType());
+                    }
                 }
 
             }
@@ -84,6 +102,26 @@ public class Capturer {
             result.addAll(UtilsWSStatistic.parseStatistics(prefix, wsStatistic));
         }
         return result;
+    }
+
+    public WSStats findStatsByMetricGroupType(String type, WSStats wsStats){
+        WSStats result = null;
+        WSStats aux = wsStats.getStats(type);
+        if(aux == null && wsStats.getSubStats().length > 0) {
+            for(WSStats substat: wsStats.getSubStats()){
+                findStatsByMetricGroupType(type, substat);
+            }
+        } else if(aux != null){
+            result = aux;
+        }
+        return result;
+    }
+    public List<WSStats> getAllInstances(String type, WSStats wsStats){
+        List<WSStats> result = new LinkedList<WSStats>();
+        for(WSStats allstats: wsStats.getSubStats()){
+            result.add(allstats);
+        }
+        return  result;
     }
 
     public String getHost() {

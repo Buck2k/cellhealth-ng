@@ -59,6 +59,7 @@ public class ReadMetricXml {
     private MetricGroup getMetricGroupProperties(Node node, Element element) {
         MetricGroup metricGroup = new MetricGroup();
         metricGroup.setStatsType(getStringValue(element, "StatsType"));
+        metricGroup.setAllowGlobal(getBooleanValue(element, "AllowGlobal"));
         metricGroup.setPrefix(getStringValue(element, "Prefix"));
         metricGroup.setUniqueInstance(getBooleanValue(element, "UniqueInstance"));
         metricGroup.setInstanceFilter(getInstanceFilter(element, "InstanceFilter"));
@@ -112,10 +113,8 @@ public class ReadMetricXml {
 
     private boolean getBooleanValue(Element element, String tagName) {
         String bool = "false";
-        if("UniqueInstance".equals(tagName)){
-            if(getStringValue(element, tagName) != null){
-                bool = getStringValue(element, tagName);
-            }
+        if(getStringValue(element, tagName) != null){
+            bool = getStringValue(element, tagName);
         }
         return Boolean.valueOf(bool);
     }

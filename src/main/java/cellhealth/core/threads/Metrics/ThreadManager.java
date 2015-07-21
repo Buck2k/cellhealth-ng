@@ -6,6 +6,7 @@ import cellhealth.core.connection.WASConnectionSOAP;
 import cellhealth.core.statistics.Capturer;
 import cellhealth.sender.Sender;
 import cellhealth.sender.graphite.sender.GraphiteSender;
+import cellhealth.utils.Utils;
 import cellhealth.utils.constants.Constants;
 import cellhealth.utils.logs.L4j;
 import cellhealth.utils.properties.xml.MetricGroup;
@@ -45,7 +46,7 @@ public class ThreadManager implements Runnable {
     }
 
     public void run() {
-        this.showInstances();
+        Utils.showInstances(this.mbeansManager);
         while(throwThreads){
             try {
                 this.launchThreads();
@@ -77,7 +78,7 @@ public class ThreadManager implements Runnable {
         }
         boolean waitToThreads = true;
         while(waitToThreads){
-            Long elapsed = timeCountStart.getTime() - new Date().getTime();
+            Long elapsed =  new Date().getTime() - timeCountStart.getTime();
             if(executor.isTerminated()){
                 L4j.getL4j().info("It has been slow to catch all the metrics " + elapsed);
                 waitToThreads = false;
@@ -122,16 +123,6 @@ public class ThreadManager implements Runnable {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-        }
-    }
-
-    public void showInstances(){
-        Set<ObjectName> runtimes = this.mbeansManager.getAllServerRuntimes();
-        for(ObjectName serverRuntime: runtimes){
-            String serverName = serverRuntime.getKeyProperty(Constants.NAME);
-            String node = serverRuntime.getKeyProperty(Constants.NODE);
-            String showServerHost = (( node==null ) || ( node.length() == 0 ))?"<NOT SET IN CONFIG>":node;
-            L4j.getL4j().info("SERVER :" + serverName + " OVER MACHINE: " + showServerHost);
         }
     }
 

@@ -7,13 +7,14 @@ function  usage() {
     from the specified vCenter server
 
     OPTIONS:
-        -?	   Show this message
-        -l	   Path to a log4j config file
-        -c	   Path to cellhealth configuration file
+	-?         Show this message
+        -l         Path to a log4j config file
+        -c         Path to cellhealth configuration file
 EOF
 }
 
-source /opt/IBM/WAS85/AppServer/profiles/dmgr/bin/setupCmdLine.sh
+#source /opt/IBM/WebSphere/AppServer/profiles/Dmgr01/bin/setupCmdLine.sh websphere 8.5
+#source /opt/IBM/WAS85/AppServer/profiles/dmgr/bin/setupCmdLine.sh websphere 6.1
 
 JAVA_HOME="$WAS_HOME"/java
 CELLHEALTH_HOME=/opt/cellhealth-ng

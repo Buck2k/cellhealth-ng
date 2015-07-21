@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CellHealthMetrics>
-    <!--- Si no esta la propiedad MBean="server1", cojera por defecto el MBean con el nombre de la instacia o servidor, tambien se podrá especificar        <MetricGroup MBean="JVM"> -->
     <MetricGroup>
         <StatsType>jvmRuntimeModule</StatsType>
         <Prefix>jvm</Prefix>
@@ -19,12 +18,12 @@
             </Metric>
         </Metrics>
     </MetricGroup>
-
     <MetricGroup>
         <StatsType>threadPoolModule</StatsType>
+        <AllowGlobal>true</AllowGlobal>
         <Prefix>Thrpool</Prefix>
-        <UniqueInstance>false</UniqueInstance> deafult FALSE
-        <InstanceFilter>SoapConnector,SIBFAPThreadPool</InstanceFilter> YEsNULL
+        <UniqueInstance>false</UniqueInstance>
+        <InstanceFilter>SoapConnector,SIBFAPThreadPool</InstanceFilter>
         <Metrics>
             <Metric id="3"> ID NONULL
                 <Name>ActiveCount</Name>
@@ -37,9 +36,9 @@
             </Metric>
         </Metrics>
     </MetricGroup>
-
     <MetricGroup>
-        <StatsType >transactionModule</StatsType>
+        <StatsType>transactionModule</StatsType>
+        <AllowGlobal>true</AllowGlobal>
         <Prefix>transaction</Prefix>
         <UniqueInstance>false</UniqueInstance>
         <Metrics>
@@ -48,9 +47,9 @@
             </Metric>
         </Metrics>
     </MetricGroup>
-
     <MetricGroup>
         <StatsType>connectionPoolModule</StatsType>
+        <AllowGlobal>true</AllowGlobal>
         <Prefix>conpool</Prefix>
         <UniqueInstance>false</UniqueInstance>
         <Metrics>
@@ -65,18 +64,18 @@
             </Metric>
         </Metrics>
     </MetricGroup>
-
     <MetricGroup>
         <StatsType>j2cModule</StatsType>
+        <AllowGlobal>true</AllowGlobal>
         <Prefix>j2c</Prefix>
         <UniqueInstance>false</UniqueInstance>
         <Metrics>
             <Metric id="7"/>
         </Metrics>
     </MetricGroup>
-
     <MetricGroup>
         <StatsType>servletSessionsModule</StatsType>
+        <AllowGlobal>true</AllowGlobal>
         <Prefix>servlets</Prefix>
         <UniqueInstance>false</UniqueInstance>
         <Metrics>
@@ -85,36 +84,12 @@
             </Metric>
         </Metrics>
     </MetricGroup>
-
     <MetricGroup>
-        <StatsType >webAppModule</StatsType>
+        <StatsType>webAppModule</StatsType>
         <Prefix>webapp</Prefix>
         <UniqueInstance>true</UniqueInstance>
         <Metrics>
             <Metric id="13"/>
         </Metrics>
     </MetricGroup>
-
 </CellHealthMetrics>
-
-<!--<?xml version="1.0" encoding="UTF-8"?>-->
-<!--<CellHealt>-->
-    <!--<MetricGroup type="jvmRuntimeModule">-->
-        <!--<Prefix>core.jvm</Prefix>-->
-        <!--<UniqueInstance>true</UniqueInstance>-->
-        <!--<Metrics>-->
-            <!--<Metric id="1">-->
-                <!--<Name>HeapSize</Name>-->
-                <!--<Scale>1024</Scale>-->
-            <!--</Metric>-->
-            <!--<Metric id="3">-->
-                <!--<Name>Used</Name>-->
-                <!--<Scale>1024</Scale>-->
-            <!--</Metric>-->
-            <!--<Metric id="5">-->
-                <!--<Name>CpuUsage</Name>-->
-                <!--<Scale>1024</Scale>-->
-            <!--</Metric>-->
-        <!--</Metrics>-->
-    <!--</MetricGroup>-->
-<!--</CellHealt>-->

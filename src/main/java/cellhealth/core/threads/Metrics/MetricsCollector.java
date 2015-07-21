@@ -22,14 +22,18 @@ public class MetricsCollector implements Runnable {
 
     public void run() {
         long start_time=System.currentTimeMillis();
-        this.sendAllMetricRange(this.capturer.getMetrics());
-        L4j.getL4j().info("Server: " + capturer.getServerName() + ", Node: " + capturer.getNode() + ", to slow " + (System.currentTimeMillis() - start_time) + "ms");
+        List<String> metrics = this.capturer.getMetrics();
+        long serverIn = (System.currentTimeMillis() - start_time);
+        start_time=System.currentTimeMillis();
+        this.sendAllMetricRange(metrics);
+        long senderIn =  (System.currentTimeMillis() - start_time);
+        L4j.getL4j().info("Server: " + capturer.getServerName() + ", Node: " + capturer.getNode() + ", in " + serverIn + "ms. Sender in " + senderIn);
     }
 
     private void sendAllMetricRange(List<String> metrics) {
         if(metrics != null) {
             for (String metric : metrics) {
-
+                System.out.println(metric);
                 sender.send(capturer.getHost(), metric);
             }
         }

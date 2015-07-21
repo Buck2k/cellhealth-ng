@@ -3,21 +3,27 @@ package cellhealth.core;
 import cellhealth.core.connection.MBeansManager;
 import cellhealth.core.connection.WASConnection;
 import cellhealth.core.statistics.MBeanStats;
-import cellhealth.utils.Utils;
+import cellhealth.utils.constants.Constants;
 import cellhealth.utils.logs.L4j;
 import com.ibm.websphere.management.exception.ConnectorException;
-
 import com.ibm.websphere.pmi.stat.WSStatistic;
 import com.ibm.websphere.pmi.stat.WSStats;
 
-
-import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanException;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 /**
@@ -26,34 +32,103 @@ import java.util.TreeSet;
 public class ListMetrics {
 
     private MBeansManager mbeansManager;
+    private Scanner scanner;
+    private final String prefix;
+    private final String sufic;
+    private File file;
 
     public ListMetrics(WASConnection wasConnection) throws ConnectorException, MalformedObjectNameException {
         this.mbeansManager = new MBeansManager(wasConnection);
+        this.scanner = new Scanner(System.in);
+        this.prefix = "logs/";
+        this.sufic = "metrics.txt";
+
     }
 
     public void list() throws ConnectorException, MalformedObjectNameException, MBeanException, ReflectionException, InstanceNotFoundException {
-        ObjectName serverPerfMBean = mbeansManager
-                .getMBean(new StringBuilder("WebSphere:type=Perf,node=")
-                        .append("wastestNode01")
-                        .append(",process=")
-                        .append("server1")
-                        .append(",*").toString());
+
+        List<String> options = new LinkedList<String>();
+        options.add("yes");
+        options.add("y");
+        options.add("n");
+        options.add("no");
+        String option;
+        boolean exit = false;
+        do {
+
+            System.out.print("You specify the server you want to display the list of metrics (y/n(default))");
+            option = scanner.nextLine();
+            if (options.contains(option.toLowerCase()) || option == null || option.length() == 0) {
+                exit = true;
+            } else {
+                System.out.println("unknown option");
+            }
+        } while(!exit);
+        Map<Integer,Map<String, String>> serverOptions = null;
+        ObjectName serverPerfMBean = null;
+        if("yes".equals(option.toLowerCase()) || "y".equals(option.toLowerCase())) {
+            serverOptions = new TreeMap<Integer, Map<String, String>>();
+            Set<ObjectName> runtimes = mbeansManager.getAllServerRuntimes();
+            int count = 0;
+            for (ObjectName serverRuntime : runtimes) {
+                if(!"DeploymentManager".equals(serverRuntime.getKeyProperty("processType"))) {
+                    count++;
+                    Map<String, String> infoServer = new HashMap<String, String>();
+                    infoServer.put("serverName", serverRuntime.getKeyProperty(Constants.NAME));
+                    infoServer.put("node", serverRuntime.getKeyProperty(Constants.NODE));
+                    serverOptions.put(count, infoServer);
+                    String node = ((infoServer.get("node") == null) || (infoServer.get("node").length() == 0)) ? "<NOT SET IN CONFIG>" : infoServer.get("node");
+                    System.out.println(count + ")" + " Server: " + infoServer.get("serverName") + " Node: " + node + " Type: " + serverRuntime.getKeyProperty("processType"));
+                }
+            }
+            boolean optionServerExit = false;
+            do {
+                System.out.print("Select server [1-" + count +"]");
+                option = scanner.nextLine();
+                try {
+                    if (Integer.valueOf(option) > 0 && Integer.valueOf(option) <= count) {
+                        Map<String, String> infoServer = serverOptions.get(Integer.valueOf(option));
+                        serverPerfMBean = mbeansManager.getMBean("WebSphere:type=Perf,node=" + infoServer.get("node") + ",process=" + infoServer.get("serverName") + ",*");
+                        optionServerExit = true;
+                    } else {
+                        System.out.println("unknown option");
+                    }
+                } catch(NumberFormatException e){
+                    System.out.println("unknown option");
+                }
+            } while(!optionServerExit);
+        } else {
+            serverPerfMBean = mbeansManager.getMBean("WebSphere:type=Perf,*");
+            String node = ((serverPerfMBean.getKeyProperty(Constants.NODE) == null) || (serverPerfMBean.getKeyProperty(Constants.NODE).length() == 0)) ? "<NOT SET IN CONFIG>" : serverPerfMBean.getKeyProperty(Constants.NODE);
+            System.out.println("Server: " + serverPerfMBean.getKeyProperty("process") + " Node: " + node);
+        }
+        System.out.println("Query perf bean: " + serverPerfMBean);
+//        ObjectName specificBean = mbeansManager.getMBean("WebSphere:name=" + serverPerfMBean.getKeyProperty("process") + ",node=" + serverPerfMBean.getKeyProperty(Constants.NODE) + ",process=" + serverPerfMBean.getKeyProperty("process") + ",*");
+//        System.out.println("Query specific bean: " +specificBean);
+
         Set<MBeanStats> typeBeans = new TreeSet<MBeanStats>();
         L4j.getL4j().info(new StringBuilder("Getting the list of names and possible metric of the node: ").append(serverPerfMBean.getKeyProperty("node")).append(", instance: ").append(serverPerfMBean.getKeyProperty("process")).toString());
+        String pathMetricsResult = prefix + serverPerfMBean.getKeyProperty(Constants.NODE) + "-" + serverPerfMBean.getKeyProperty("process") + "-" + sufic;
+        this.file = new File(pathMetricsResult);
+        if(this.file.exists()){
+            this.file.delete();
+        }
+        try {
+            this.file.createNewFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         try {
             for(ObjectName objectName: mbeansManager.getMBeans("WebSphere:*")){
-
                 String[] signature = new String[] {"javax.management.ObjectName","java.lang.Boolean"};
                 Object[] params = new Object[] {objectName, new Boolean(true)};
                 WSStats wsStats = (WSStats) mbeansManager.getClient().invoke(serverPerfMBean, "getStatsObject", params, signature);
-                //WSStats[] wsStatsArr = (WSStats[]) mbeansManager.getClient().invoke(serverPerfMBean, "getStatsObject", params, signature);
                 if(wsStats != null) {
                     MBeanStats mbeanStats = new MBeanStats();
                     mbeanStats.setObjectName(objectName);
                     mbeanStats.setName(wsStats.getName());
                     mbeanStats.setSubStats((wsStats.getSubStats().length > 0));
                     mbeanStats.setWsStats(wsStats);
-                    //mbeanStats.setCant(wsStatsArr.length);
                     typeBeans.add(mbeanStats);
                 }
             }
@@ -61,61 +136,55 @@ public class ListMetrics {
             e.printStackTrace();
         }
 
-        System.out.println("\n\n");
-        System.out.println("List of MBeans (Statistics)");
-        System.out.println("###########################\n\n");
-        System.out.println();
+        print("\n\n");
+        print("List of MBeans (Statistics)\n");
+        print("###########################");
         for(MBeanStats t: typeBeans) {
-            System.out.println("\n\nNombre del MBean que contiene las metricas " + t.getObjectName().getKeyProperty("name"));
-            System.out.println(t.getObjectName());
-            System.out.println("\n\t Nombre de las metricas (1 nivel): " + t.getWsStats().getName());
-            if(t.isSubStats()){
-                for(WSStats stats:t.getWsStats().getSubStats()){
-                    System.out.println("\t Nombre de las metricas (2 nivel): " + stats.getName());
-                    for(WSStatistic statistic:stats.getStatistics()){
-                        System.out.print("\t\t id :" + statistic.getId());
-                        System.out.println(" nombre :" + statistic.getName());
-                        System.out.println("\t\t Descripcion :" + statistic.getDescription());
-                    }
-                }
-            } else {
-                for(WSStatistic statistic:t.getWsStats().getStatistics()){
-                    System.out.print("\t\t id :" + statistic.getId());
-                    System.out.println(" nombre :" + statistic.getName());
-                    System.out.println("\t\t Descripcion :" + statistic.getDescription());
-                }
-            }
+            print("\n\nSpecific Bean: " + t.getObjectName().getKeyProperty("name") + "\n");
+            mostrarStats(t);
         }
-        //this.mostrarStats(typeBeans);
+        System.out.println("The result is saved in " + this.file.getAbsolutePath());
     }
 
-    private void mostrarStats(Set<MBeanStats> typeBeans){
-        for(MBeanStats mbeanStat: typeBeans){
-            if(mbeanStat.isSubStats()){
-                System.out.println("\n-> " + mbeanStat.getName() + " have " + mbeanStat.getWsStats().getSubStats().length + " SubStats");
-                for(WSStatistic wsStatistic: mbeanStat.getWsStats().getStatistics()){
-                    System.out.println("\t ID:" + wsStatistic.getId() + " name:" + wsStatistic.getName() + " unity: " + wsStatistic.getUnit() + " type:" + Utils.getWSStatisticType(wsStatistic));
-                    System.out.println("\t Description:" + wsStatistic.getDescription());
-                }
-                Set<MBeanStats> typeBeanSub = new TreeSet<MBeanStats>();
-                for(WSStats substats:mbeanStat.getWsStats().getSubStats()) {
-                    MBeanStats mbeanStats = new MBeanStats();
-                    mbeanStats.setName(substats.getName());
-                    mbeanStats.setSubStats((substats.getSubStats().length > 0));
-                    mbeanStats.setWsStats(substats);
-                    typeBeanSub.add(mbeanStats);
-                }
-
-                this.mostrarStats(typeBeanSub);
-            } else {
-                System.out.println("\n-> " + mbeanStat.getName());
-                for(WSStatistic wsStatistic: mbeanStat.getWsStats().getStatistics()){
-                    System.out.println("\t ID:" + wsStatistic.getId() + " name:" + wsStatistic.getName() + " unity: " + wsStatistic.getUnit() + " type:" + Utils.getWSStatisticType(wsStatistic));
-                    System.out.println("\t Description:" + wsStatistic.getDescription());
-                }
+    public void mostrarStats(MBeanStats t){
+        print("\n\tMetric name: (1 nivel): " + t.getWsStats().getName() + "\n");
+        if(t.isSubStats()){
+            mostrarSubstats(t.getWsStats().getSubStats(), 1);
+        } else {
+            for(WSStatistic statistic:t.getWsStats().getStatistics()){
+                mostrarValoresStatistis(statistic);
             }
         }
     }
 
+    public void mostrarValoresStatistis(WSStatistic statistic){
+        print("\t\tId: " + statistic.getId() + " Name: " + statistic.getName() + "\n");
+        //System.out.println("\t\tDescription: " + statistic.getDescription());
+    }
+
+    public void mostrarSubstats(WSStats[] stats, int cant){
+        cant++;
+        for(WSStats statss: stats){
+            print("\n\tMetric name (" + cant + " nivel): " + statss.getName() + "\n");
+            for(WSStatistic statistic:statss.getStatistics()){
+                mostrarValoresStatistis(statistic);
+            }
+            if(statss.getSubStats().length > 0) {
+                mostrarSubstats(statss.getSubStats(), cant);
+            }
+        }
+    }
+
+    public void print(String line) {
+        System.out.print(line);
+        FileWriter fileWriter = null;
+        try {
+            fileWriter = new FileWriter(this.file, true);
+            fileWriter.write(line);
+            fileWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
 }
