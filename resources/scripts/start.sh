@@ -13,8 +13,8 @@ function  usage() {
 EOF
 }
 
-#source /opt/IBM/WebSphere/AppServer/profiles/Dmgr01/bin/setupCmdLine.sh websphere 8.5
-#source /opt/IBM/WAS85/AppServer/profiles/dmgr/bin/setupCmdLine.sh websphere 6.1
+#source /opt/IBM/WebSphere/AppServer/profiles/Dmgr01/bin/setupCmdLine.sh websphere 6.1
+#source /opt/IBM/WAS85/AppServer/profiles/dmgr/bin/setupCmdLine.sh websphere 8.5
 
 JAVA_HOME="$WAS_HOME"/java
 CELLHEALTH_HOME=/opt/cellhealth-ng

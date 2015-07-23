@@ -20,7 +20,7 @@ public class UtilsWSStatistic {
     public static List<String> parseStatistics(String prefix, WSStatistic wsStatistic){
         List<String> result = new LinkedList<String>();
         String type = null;
-        if (wsStatistic != null) {
+        if (wsStatistic != null && wsStatistic.getName() != null) {
             type = Utils.getWSStatisticType(wsStatistic);
             if ("CountStatistic".equals(type)) {
                 WSCountStatistic countStatistic = (WSCountStatistic) wsStatistic;
@@ -39,8 +39,8 @@ public class UtilsWSStatistic {
             } else if ("BoundedRangeStatistic".equals(type)) {
                 result.addAll(getBoundedRangeStatistic(prefix, wsStatistic));
             }
-        } else {
-            //L4j.getL4j().info( metricGroup.getStatsType() + " " + metric.getId() + " Unable to get " + metricGroup.getStatsType() + " to id " + metric.getId() + " stats for server: " + this.serverName);
+        } else if(wsStatistic != null && wsStatistic.getName() == null){
+            //l4j
         }
         return result;
     }

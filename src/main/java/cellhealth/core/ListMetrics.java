@@ -140,8 +140,10 @@ public class ListMetrics {
         print("List of MBeans (Statistics)\n");
         print("###########################");
         for(MBeanStats t: typeBeans) {
-            print("\n\nSpecific Bean: " + t.getObjectName().getKeyProperty("name") + "\n");
-            mostrarStats(t);
+            if(t.getObjectName().getKeyProperty("name").equals(serverPerfMBean.getKeyProperty("process"))) {
+                print("\n\nSpecific Bean: " + t.getObjectName().getKeyProperty("name") + "\n");
+                mostrarStats(t);
+            }
         }
         System.out.println("The result is saved in " + this.file.getAbsolutePath());
     }
@@ -159,7 +161,6 @@ public class ListMetrics {
 
     public void mostrarValoresStatistis(WSStatistic statistic){
         print("\t\tId: " + statistic.getId() + " Name: " + statistic.getName() + "\n");
-        //System.out.println("\t\tDescription: " + statistic.getDescription());
     }
 
     public void mostrarSubstats(WSStats[] stats, int cant){

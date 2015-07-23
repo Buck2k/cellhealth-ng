@@ -21,6 +21,7 @@ public class Capturer {
     private List<MetricGroup> metricGroups;
     private ObjectName serverPerfMBean;
     private String host;
+    private String prefix;
 
     public Capturer(MBeansManager mbeansManager, String node, String serverName, List<MetricGroup> metricGroups) {
         this.mbeansManager = mbeansManager;
@@ -66,7 +67,7 @@ public class Capturer {
                             if (auxStats != null) {
                                 stats.addAll(getStatsType(metricGroup, auxStats));
                             } else {
-                                L4j.getL4j().warning("Node: " + this.node + " Server: " + this.serverName + " Not fount statstype " + metricGroup.getStatsType());
+                                //L4j.getL4j().warning("Node: " + this.node + " Server: " + this.serverName + " Not found statstype " + metricGroup.getStatsType());
                             }
                         }
                     } else {
@@ -79,7 +80,7 @@ public class Capturer {
                     if (auxStats != null) {
                         stats.addAll(getStatsType(metricGroup, auxStats));
                     } else {
-                        L4j.getL4j().warning("Node: " + this.node + " Server: " + this.serverName + " Not fount statstype " + metricGroup.getStatsType());
+                        //L4j.getL4j().warning("Node: " + this.node + " Server: " + this.serverName + " Not found statstype " + metricGroup.getStatsType());
                     }
                 }
 
@@ -90,16 +91,20 @@ public class Capturer {
         return stats;
     }
 
+    public String getPrefix() {
+        return prefix;
+    }
+
     public List<String> getStatsType(MetricGroup metricGroup, WSStats wsStats) {
         List<String> result = new LinkedList<String>();
 
         if (metricGroup == null || metricGroup.getMetrics() == null || metricGroup.getStatsType() == null || metricGroup.getMetrics().size() == 0) {
             throw new IllegalArgumentException();
         }
-        String prefix = this.serverPerfMBean.getKeyProperty("cell") + "." + this.serverPerfMBean.getKeyProperty("process") + "." + metricGroup.getPrefix();
+        this.prefix = this.serverPerfMBean.getKeyProperty("cell") + "." + this.serverPerfMBean.getKeyProperty("process") + "." + metricGroup.getPrefix();
         for (Metric metric : metricGroup.getMetrics()) {
             WSStatistic wsStatistic = wsStats.getStatistic(metric.getId());
-            result.addAll(UtilsWSStatistic.parseStatistics(prefix, wsStatistic));
+            result.addAll(UtilsWSStatistic.parseStatistics(this.prefix, wsStatistic));
         }
         return result;
     }

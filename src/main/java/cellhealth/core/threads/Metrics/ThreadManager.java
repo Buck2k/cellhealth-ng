@@ -63,11 +63,12 @@ public class ThreadManager implements Runnable {
         Date timeCountStart = new Date();
         ExecutorService executor = Executors.newFixedThreadPool(runtimes.size());
         checkConnections();
+        CHStats chStats = new CHStats();
         for(ObjectName serverRuntime: runtimes){
             String serverName = serverRuntime.getKeyProperty(Constants.NAME);
             String node = serverRuntime.getKeyProperty(Constants.NODE);
             Capturer capturer = new Capturer(this.mbeansManager, node, serverName, this.metricGroups);
-            Runnable worker = new MetricsCollector(capturer, this.sender);
+            Runnable worker = new MetricsCollector(capturer, this.sender, chStats);
             executor.execute(worker);
         }
         executor.shutdown();
@@ -80,7 +81,21 @@ public class ThreadManager implements Runnable {
         while(waitToThreads){
             Long elapsed =  new Date().getTime() - timeCountStart.getTime();
             if(executor.isTerminated()){
-                L4j.getL4j().info("It has been slow to catch all the metrics " + elapsed);
+                Runtime runtime = Runtime.getRuntime();
+                String retrieveTime = chStats.getPathChStats() + ".global.retrieve_time " + elapsed + " " + System.currentTimeMillis() / 1000L + "\n";
+                String numberMetrics = chStats.getPathChStats() + ".global.number_metrics " + chStats.getMetrics() + " " + System.currentTimeMillis() / 1000L + "\n";
+                String jvmFreeMemory = chStats.getPathChStats() + ".global.jvm.freememory" + runtime.freeMemory() + " " + System.currentTimeMillis() / 1000L + "\n";
+                String jvmMaxMemory = chStats.getPathChStats() + ".global.jvm.maxmemory" + runtime.maxMemory() + " " + System.currentTimeMillis() / 1000L + "\n";
+                String jvmTotalMemory = chStats.getPathChStats() + ".global.jvm.totalmemory" + runtime.totalMemory() + " " + System.currentTimeMillis() / 1000L + "\n";
+                String availableProcessors = chStats.getPathChStats() + ".global.jvm.availableprocessors" + runtime.availableProcessors() + " " + System.currentTimeMillis() / 1000L + "\n";
+                chStats.add(retrieveTime);
+                chStats.add(numberMetrics);
+
+                if(chStats.getStats() != null) {
+                    for (String metric : chStats.getStats()) {
+                        sender.send(chStats.getHost(), metric);
+                    }
+                }
                 waitToThreads = false;
             }
             if(elapsed == 60000l){
