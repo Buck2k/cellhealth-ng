@@ -5,15 +5,10 @@ import cellhealth.core.connection.WASConnection;
 import cellhealth.core.statistics.MBeanStats;
 import cellhealth.utils.constants.Constants;
 import cellhealth.utils.logs.L4j;
-import com.ibm.websphere.management.exception.ConnectorException;
 import com.ibm.websphere.pmi.stat.WSStatistic;
 import com.ibm.websphere.pmi.stat.WSStats;
 
-import javax.management.InstanceNotFoundException;
-import javax.management.MBeanException;
-import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
-import javax.management.ReflectionException;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -37,15 +32,15 @@ public class ListMetrics {
     private final String sufic;
     private File file;
 
-    public ListMetrics(WASConnection wasConnection) throws ConnectorException, MalformedObjectNameException {
+    public ListMetrics(WASConnection wasConnection) {
         this.mbeansManager = new MBeansManager(wasConnection);
         this.scanner = new Scanner(System.in);
         this.prefix = "logs/";
-        this.sufic = "metrics.txt";
+        this.sufic = "metrics.info";
 
     }
 
-    public void list() throws ConnectorException, MalformedObjectNameException, MBeanException, ReflectionException, InstanceNotFoundException {
+    public void list() {
 
         List<String> options = new LinkedList<String>();
         options.add("yes");

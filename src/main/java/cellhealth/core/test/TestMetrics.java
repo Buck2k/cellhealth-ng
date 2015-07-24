@@ -1,13 +1,11 @@
-package cellhealth.core;
+package cellhealth.core.test;
 
 import cellhealth.core.connection.MBeansManager;
 import cellhealth.core.connection.WASConnection;
-import com.ibm.websphere.management.exception.ConnectorException;
 
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanInfo;
 import javax.management.MBeanOperationInfo;
-import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -30,16 +28,13 @@ public class TestMetrics {
     public static final String SEPARATOR = "" + SEPARATOR_CHAR;
     protected static final long BYTES_IN_MEGABYTE = 1024 * 1024;
 
-    public TestMetrics(WASConnection wasConnection) throws ConnectorException, MalformedObjectNameException {
+    public TestMetrics(WASConnection wasConnection) {
         this.mbeansManager = new MBeansManager(wasConnection);
     }
     public void test(){
         ObjectName objectName = mbeansManager.getMBean("WebSphere:*,process=server1,type=JVM");
         try
         {
-            String[] signature = new String[] {"javax.management.ObjectName","java.lang.Boolean"};
-            Object[] params = new Object[] {objectName, new Boolean(true)};
-            System.out.println(objectName);
             MBeanInfo mb = mbeansManager.getClient().getMBeanInfo(objectName);
             System.out.println("Operaciones");
             for(MBeanOperationInfo op: mb.getOperations()){
