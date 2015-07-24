@@ -12,5 +12,5 @@ public class Constants {
     public static final String PATH_METRIC_PROPERTIES = System.getProperty("ch_config_metrics_path");
     public final static String NAME = "name";
     public final static String NODE = "node";
-    public final static String CURRENT_MACHINE = "CurrentMachine";
+    public static final String QUERY_SERVER_RUNTIME = "WebSphere:*,type=Server,j2eeType=J2EEServer";
 }

@@ -10,4 +10,6 @@ public class Error {
     public static final String ERROR_CONNECT = "Failed to connect: ";
     public static final String DISCONNECTING_TIMEOUT = "Disconnecting due to read timeout ";
     public static final String DISCONNECTING_TRAFFIC = "Disconnecting due to no inbound traffic ";
+    public static final String CONNECTOR_ERROR = "Error in connector";
+    public static final String OBJECT_MALFORMED = " Object malformed";
 }

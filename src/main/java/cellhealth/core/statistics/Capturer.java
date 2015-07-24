@@ -10,6 +10,7 @@ import com.ibm.websphere.pmi.stat.WSStatistic;
 import com.ibm.websphere.pmi.stat.WSStats;
 
 import javax.management.ObjectName;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -59,19 +60,19 @@ public class Capturer {
         List<String> stats = new LinkedList<String>();
         if (wsStats != null) {
             for (MetricGroup metricGroup : this.metricGroups) {
-                WSStats auxStats = null;
+                WSStats auxStats;
                 if(!metricGroup.isUniqueInstance()){
-                    if(metricGroup.getInstanceFilter() == null || metricGroup.getInstanceFilter().size() > 0) {
+                    if(metricGroup.getInstanceFilter() != null) {
                         for (String instance : metricGroup.getInstanceFilter()) {
                             auxStats = findStatsByMetricGroupType(instance, wsStats);
                             if (auxStats != null) {
                                 stats.addAll(getStatsType(metricGroup, auxStats));
                             } else {
-                                //L4j.getL4j().warning("Node: " + this.node + " Server: " + this.serverName + " Not found statstype " + metricGroup.getStatsType());
+                                L4j.getL4j().warning("Node: " + this.node + " Server: " + this.serverName + " Not found statstype " + metricGroup.getStatsType());
                             }
                         }
                     } else {
-                        for(WSStats allstats: getAllInstances(metricGroup.getStatsType(), wsStats)){
+                        for(WSStats allstats: getAllInstances(wsStats)){
                             stats.addAll(getStatsType(metricGroup, allstats));
                         }
                     }
@@ -80,7 +81,7 @@ public class Capturer {
                     if (auxStats != null) {
                         stats.addAll(getStatsType(metricGroup, auxStats));
                     } else {
-                        //L4j.getL4j().warning("Node: " + this.node + " Server: " + this.serverName + " Not found statstype " + metricGroup.getStatsType());
+                        L4j.getL4j().warning("Node: " + this.node + " Server: " + this.serverName + " Not found statstype " + metricGroup.getStatsType());
                     }
                 }
 
@@ -121,11 +122,9 @@ public class Capturer {
         }
         return result;
     }
-    public List<WSStats> getAllInstances(String type, WSStats wsStats){
+    public List<WSStats> getAllInstances(WSStats wsStats){
         List<WSStats> result = new LinkedList<WSStats>();
-        for(WSStats allstats: wsStats.getSubStats()){
-            result.add(allstats);
-        }
+        result.addAll(Arrays.asList(wsStats.getSubStats()));
         return  result;
     }
 
@@ -133,11 +132,4 @@ public class Capturer {
         return this.host;
     }
 
-    public String getServerName() {
-        return this.serverName;
-    }
-
-    public String getNode() {
-        return this.node;
-    }
 }
