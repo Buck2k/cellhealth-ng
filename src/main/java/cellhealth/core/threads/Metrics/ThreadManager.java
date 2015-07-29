@@ -81,15 +81,16 @@ public class ThreadManager implements Runnable {
         while(waitToThreads){
             Long elapsed =  new Date().getTime() - timeCountStart.getTime();
             if(executor.isTerminated()){
-                Runtime runtime = Runtime.getRuntime();
-                String retrieveTime = chStats.getPathChStats() + ".global.retrieve_time " + elapsed + " " + System.currentTimeMillis() / 1000L + "\n";
-                String numberMetrics = chStats.getPathChStats() + ".global.number_metrics " + chStats.getMetrics() + " " + System.currentTimeMillis() / 1000L + "\n";
-                String jvmFreeMemory = chStats.getPathChStats() + ".global.jvm.freememory" + runtime.freeMemory() + " " + System.currentTimeMillis() / 1000L + "\n";
-                String jvmMaxMemory = chStats.getPathChStats() + ".global.jvm.maxmemory" + runtime.maxMemory() + " " + System.currentTimeMillis() / 1000L + "\n";
-                String jvmTotalMemory = chStats.getPathChStats() + ".global.jvm.totalmemory" + runtime.totalMemory() + " " + System.currentTimeMillis() / 1000L + "\n";
-                String availableProcessors = chStats.getPathChStats() + ".global.jvm.availableprocessors" + runtime.availableProcessors() + " " + System.currentTimeMillis() / 1000L + "\n";
-                chStats.add(retrieveTime);
-                chStats.add(numberMetrics);
+//                Runtime runtime = Runtime.getRuntime();
+//
+//                String retrieveTime = chStats.getPathChStats() + ".global.retrieve_time " + elapsed + " " + System.currentTimeMillis() / 1000L + "\n";
+//                String numberMetrics = chStats.getPathChStats() + ".global.number_metrics " + chStats.getMetrics() + " " + System.currentTimeMillis() / 1000L + "\n";
+//                String jvmFreeMemory = chStats.getPathChStats() + ".global.jvm.freememory" + runtime.freeMemory() + " " + System.currentTimeMillis() / 1000L + "\n";
+//                String jvmMaxMemory = chStats.getPathChStats() + ".global.jvm.maxmemory" + runtime.maxMemory() + " " + System.currentTimeMillis() / 1000L + "\n";
+//                String jvmTotalMemory = chStats.getPathChStats() + ".global.jvm.totalmemory" + runtime.totalMemory() + " " + System.currentTimeMillis() / 1000L + "\n";
+//                String availableProcessors = chStats.getPathChStats() + ".global.jvm.availableprocessors" + runtime.availableProcessors() + " " + System.currentTimeMillis() / 1000L + "\n";
+//                chStats.add(retrieveTime);
+//                chStats.add(numberMetrics);
 
                 if(chStats.getStats() != null) {
                     for (String metric : chStats.getStats()) {
@@ -140,5 +141,4 @@ public class ThreadManager implements Runnable {
             }
         }
     }
-
 }

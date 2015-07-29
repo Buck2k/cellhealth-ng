@@ -16,11 +16,13 @@ public class Settings {
 
     private String hostWebsphere;
     private String portWebsphere;
-    private String l4jpattern;
-    private String l4jpatternconfig;
-    private String appname;
-    private String l4jname;
-    private String l4jgetlogger;
+    private String l4jPattern;
+    private String l4jPatternConfig;
+    private String appName;
+    private String l4jName;
+    private String l4jGetLogger;
+    private String pathConf;
+    private String pathSenderConf;
 
     private Settings(){}
 
@@ -28,6 +30,7 @@ public class Settings {
         if(instance == null) {
             instance = new Settings();
             readBaseProperties();
+            readL4jProperties();
         }
         return instance;
     }
@@ -38,17 +41,27 @@ public class Settings {
             fileProperties = new FileInputStream(Constants.PATH_CELLHEALT_PROPERTIES);
             Properties confProperties = new Properties();
             confProperties.load(fileProperties);
-
-            instance.setAppname(confProperties.getProperty("appName"));
-
             instance.setHostWebsphere(confProperties.getProperty("host_websphere"));
             instance.setPortWebsphere(confProperties.getProperty("port_soap_websphere"));
+            instance.setPathConf(Constants.PATH_DIR_PROPERTIES);
+            instance.setPathSenderConf(Constants.PATH_DIR_PROPERTIES + confProperties.getProperty("sender_properties"));
+            fileProperties.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
-            instance.setL4jpattern(confProperties.getProperty("l4jPattern"));
-            instance.setL4jpatternconfig(confProperties.getProperty("l4jPatternConfig:"));
-            instance.setL4jname(confProperties.getProperty("l4jName"));
-            instance.setL4jgetlogger(confProperties.getProperty("l4jgetLogger"));
-
+    private static void readL4jProperties(){
+        FileInputStream fileProperties;
+        try {
+            fileProperties = new FileInputStream(Constants.PATH_L4J_PROPERTIES);
+            Properties confProperties = new Properties();
+            confProperties.load(fileProperties);
+            instance.setAppName(confProperties.getProperty("appName"));
+            instance.setL4jPattern(confProperties.getProperty("l4jPattern"));
+            instance.setL4jPatternConfig(confProperties.getProperty("l4jPatternConfig:"));
+            instance.setL4jName(confProperties.getProperty("l4jName"));
+            instance.setL4jGetLogger(confProperties.getProperty("l4jgetLogger"));
             fileProperties.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -63,44 +76,60 @@ public class Settings {
         this.hostWebsphere = hostWebsphere;
     }
 
-    public String getL4jgetlogger() {
-        return l4jgetlogger;
+    public static Settings getInstance() {
+        return instance;
     }
 
-    public void setL4jgetlogger(String l4jgetlogger) {
-        this.l4jgetlogger = l4jgetlogger;
+    public static void setInstance(Settings instance) {
+        Settings.instance = instance;
     }
 
-    public String getL4jname() {
-        return l4jname;
+    public String getL4jPattern() {
+        return l4jPattern;
     }
 
-    public void setL4jname(String l4jname) {
-        this.l4jname = l4jname;
+    public void setL4jPattern(String l4jPattern) {
+        this.l4jPattern = l4jPattern;
     }
 
-    public String getAppname() {
-        return appname;
+    public String getL4jPatternConfig() {
+        return l4jPatternConfig;
     }
 
-    public void setAppname(String appname) {
-        this.appname = appname;
+    public void setL4jPatternConfig(String l4jPatternConfig) {
+        this.l4jPatternConfig = l4jPatternConfig;
     }
 
-    public String getL4jpatternconfig() {
-        return l4jpatternconfig;
+    public String getAppName() {
+        return appName;
     }
 
-    public void setL4jpatternconfig(String l4jpatternconfig) {
-        this.l4jpatternconfig = l4jpatternconfig;
+    public void setAppName(String appName) {
+        this.appName = appName;
     }
 
-    public String getL4jpattern() {
-        return l4jpattern;
+    public String getL4jName() {
+        return l4jName;
     }
 
-    public void setL4jpattern(String l4jpattern) {
-        this.l4jpattern = l4jpattern;
+    public void setL4jName(String l4jName) {
+        this.l4jName = l4jName;
+    }
+
+    public String getL4jGetLogger() {
+        return l4jGetLogger;
+    }
+
+    public void setL4jGetLogger(String l4jGetLogger) {
+        this.l4jGetLogger = l4jGetLogger;
+    }
+
+    public String getPathConf() {
+        return pathConf;
+    }
+
+    public void setPathConf(String pathConf) {
+        this.pathConf = pathConf;
     }
 
     public String getPortWebsphere() {
@@ -109,5 +138,13 @@ public class Settings {
 
     public void setPortWebsphere(String portWebsphere) {
         this.portWebsphere = portWebsphere;
+    }
+
+    public String getPathSenderConf() {
+        return pathSenderConf;
+    }
+
+    public void setPathSenderConf(String pathSenderConf) {
+        this.pathSenderConf = pathSenderConf;
     }
 }

@@ -2,8 +2,8 @@ package cellhealth.sender.graphite.sender;
 
 import cellhealth.sender.Sender;
 import cellhealth.sender.graphite.channel.Pipeline;
-import cellhealth.utils.constants.Constants;
 import cellhealth.utils.logs.L4j;
+import cellhealth.utils.properties.Settings;
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
@@ -50,7 +50,7 @@ public class GraphiteSender implements Sender {
         boolean haveProperties = true;
         this.graphiteProperties = new Properties();
         try {
-            this.graphiteProperties.load(new FileInputStream(Constants.PATH_GRAPHITE_PROPERTIES));
+            this.graphiteProperties.load(new FileInputStream(Settings.getInstance().getPathSenderConf()));
         } catch (IOException e) {
             haveProperties = false;
         }

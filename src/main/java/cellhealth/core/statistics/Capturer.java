@@ -10,7 +10,6 @@ import com.ibm.websphere.pmi.stat.WSStatistic;
 import com.ibm.websphere.pmi.stat.WSStats;
 
 import javax.management.ObjectName;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -62,7 +61,7 @@ public class Capturer {
             for (MetricGroup metricGroup : this.metricGroups) {
                 WSStats auxStats;
                 if(!metricGroup.isUniqueInstance()){
-                    if(metricGroup.getInstanceFilter() != null) {
+                    if(metricGroup.getInstanceFilter() == null || metricGroup.getInstanceFilter().size() > 0) {
                         for (String instance : metricGroup.getInstanceFilter()) {
                             auxStats = findStatsByMetricGroupType(instance, wsStats);
                             if (auxStats != null) {
@@ -72,7 +71,7 @@ public class Capturer {
                             }
                         }
                     } else {
-                        for(WSStats allstats: getAllInstances(wsStats)){
+                        for(WSStats allstats: getAllInstances(metricGroup.getStatsType(), wsStats)){
                             stats.addAll(getStatsType(metricGroup, allstats));
                         }
                     }
@@ -87,13 +86,9 @@ public class Capturer {
 
             }
         } else {
-            L4j.getL4j().error("WSStats not found", new NullPointerException());
+            L4j.getL4j().warning("Server " + this.serverName + " node " + this.node + "don't generate wstats");
         }
         return stats;
-    }
-
-    public String getPrefix() {
-        return prefix;
     }
 
     public List<String> getStatsType(MetricGroup metricGroup, WSStats wsStats) {
@@ -122,14 +117,28 @@ public class Capturer {
         }
         return result;
     }
-    public List<WSStats> getAllInstances(WSStats wsStats){
+    public List<WSStats> getAllInstances(String type, WSStats wsStats){
         List<WSStats> result = new LinkedList<WSStats>();
-        result.addAll(Arrays.asList(wsStats.getSubStats()));
+        for(WSStats allstats: wsStats.getSubStats()){
+            result.add(allstats);
+        }
         return  result;
     }
 
     public String getHost() {
         return this.host;
+    }
+
+    public String getServerName() {
+        return this.serverName;
+    }
+
+    public String getNode() {
+        return this.node;
+    }
+
+    public String getPrefix(){
+        return this.prefix;
     }
 
 }

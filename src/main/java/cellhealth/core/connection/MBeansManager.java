@@ -103,7 +103,7 @@ public class MBeansManager {
      * Se utiliza para calcular el nombre de maquina.
      * @return nodo del servidor
      */
-    public String getNodeServerMBean(){
+    public String getNodeServerMBeanN(){
         String node = null;
         try {
             node = this.client.getServerMBean().getKeyProperty(Constants.NAME);
@@ -111,5 +111,10 @@ public class MBeansManager {
             L4j.getL4j().warning("e");
         }
         return node;
+    }
+
+    public String getNodeServerMBean(){
+        ObjectName objectName = getMBean("WebSphere:processType=ManagedProcess,*");
+        return objectName.getKeyProperty("node");
     }
 }

@@ -2,7 +2,7 @@ package cellhealth.core.threads.Metrics;
 
 import cellhealth.core.statistics.Capturer;
 import cellhealth.sender.Sender;
-import cellhealth.utils.constants.Constants;
+import cellhealth.utils.properties.Settings;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -34,7 +34,7 @@ public class MetricsCollector implements Runnable {
         this.sendAllMetricRange(metrics);
         Properties prop = new Properties();
         try {
-            prop.load(new FileInputStream(Constants.PATH_GRAPHITE_PROPERTIES));
+            prop.load(new FileInputStream(Settings.propertie().getPathSenderConf()));
         } catch (IOException e) {
             e.printStackTrace();
         }

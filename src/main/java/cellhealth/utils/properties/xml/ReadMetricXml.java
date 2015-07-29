@@ -1,8 +1,8 @@
 package cellhealth.utils.properties.xml;
 
 
-import cellhealth.utils.constants.Constants;
 import cellhealth.utils.logs.L4j;
+import cellhealth.utils.properties.Settings;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -27,7 +27,7 @@ public class ReadMetricXml {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         try {
             DocumentBuilder db = dbf.newDocumentBuilder();
-            this.dom = db.parse(Constants.PATH_METRIC_PROPERTIES);
+            this.dom = db.parse(Settings.getInstance().getPathConf() + "metrics.xml");
         } catch (ParserConfigurationException pce) {
             pce.printStackTrace();
         } catch (SAXException se) {
