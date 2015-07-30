@@ -19,13 +19,8 @@ import java.util.Scanner;
 
 public class cellhealth {
 
-    //-b bean list
-    //-o operation list
-    // -a attribute list
-    // -l
-    // -tb
-
     public static void main(String[] args) throws Exception {
+        L4j.getL4j().setConfig(Settings.propertie().getPathLog(), Settings.propertie().getLogLevel());
         List<String> mainOptions = new LinkedList<String>();
         mainOptions.add("-l");
         mainOptions.add("-b");
@@ -36,8 +31,6 @@ public class cellhealth {
         List<String> configOptions = new LinkedList<String>();
         configOptions.add("--host");
         configOptions.add("--port");
-
-
         int foundMainOptions = 0;
         boolean isError = false;
         boolean isOptionArgument = false;
@@ -135,7 +128,7 @@ public class cellhealth {
             infoBeans.listOperationsBean();
         } else if(option == 3) {
             L4j.getL4j().info("Starting CellHealth - Bean list attributes");
-            infoBeans.listAttributesBean();
+            infoBeans.listAttributesBeanTemp();
         }
     }
 

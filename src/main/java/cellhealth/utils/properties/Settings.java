@@ -23,16 +23,23 @@ public class Settings {
     private String l4jGetLogger;
     private String pathConf;
     private String pathSenderConf;
+    private String pathLog;
+    private String logLevel;
 
     private Settings(){}
 
     public static synchronized Settings propertie(){
         if(instance == null) {
             instance = new Settings();
-            readBaseProperties();
-            readL4jProperties();
+            instance.globalProperties();
+            instance.readBaseProperties();
+            instance.readL4jProperties();
         }
         return instance;
+    }
+
+    private static void globalProperties(){
+        instance.setPathConf(Constants.CELLHEALTH_PATH + "conf/");
     }
 
     private static void readBaseProperties(){
@@ -43,13 +50,18 @@ public class Settings {
             confProperties.load(fileProperties);
             instance.setHostWebsphere(confProperties.getProperty("host_websphere"));
             instance.setPortWebsphere(confProperties.getProperty("port_soap_websphere"));
-            instance.setPathConf(Constants.PATH_DIR_PROPERTIES);
-            instance.setPathSenderConf(Constants.PATH_DIR_PROPERTIES + confProperties.getProperty("sender_properties"));
+            instance.setPathSenderConf(instance.getPathConf() + confProperties.getProperty("sender_properties"));
+            String logPath = (confProperties.getProperty("ch_output_log_path") == null)? "cellhealth-ng.log":confProperties.getProperty("ch_output_log_path");
+            logPath = Constants.CELLHEALTH_PATH + "logs/" + logPath;
+            instance.setPathLog(logPath);
+            String logLevel = (confProperties.getProperty("ch_output_log_level") == null)? "INFO":confProperties.getProperty("ch_output_log_level");
+            instance.setLogLevel(logLevel);
             fileProperties.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
 
     private static void readL4jProperties(){
         FileInputStream fileProperties;
@@ -146,5 +158,21 @@ public class Settings {
 
     public void setPathSenderConf(String pathSenderConf) {
         this.pathSenderConf = pathSenderConf;
+    }
+
+    public String getPathLog() {
+        return pathLog;
+    }
+
+    public void setPathLog(String pathLog) {
+        this.pathLog = pathLog;
+    }
+
+    public String getLogLevel() {
+        return logLevel;
+    }
+
+    public void setLogLevel(String logLevel) {
+        this.logLevel = logLevel;
     }
 }

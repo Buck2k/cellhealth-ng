@@ -6,7 +6,7 @@ function  usage() {
 	start	   start cellhealth with [CELLHEALTH_OPTIONS] 
 	status	   show cellhealth status
 	stop       stop cellhealth
-        restart    restar cellhealth
+    restart    restar cellhealth
 	chopts	   show cellhealth options
 
    CELL
@@ -16,7 +16,8 @@ EOF
 JAVA_HOME="$WAS_HOME"/java
 CELLHEALTH_HOME=/opt/cellhealth-ng
 LIB_DIR=${CELLHEALTH_HOME}/lib
-CELLHEALTH_CONF_PATH="-Dch_config_dir_path=/opt/cellhealth-ng/conf/"
+CELLHEALTH_PATH="-Dch_dir_path=/opt/cellhealth-ng/"
+
 
 source $CELLHEALTH_HOME/conf/setup.conf
 [ -z "$SETUPCMDLINE_PATH" ] && {
@@ -94,14 +95,14 @@ function get_pidof() {
 
 
 function start() {
-	CMD="${JAVA_HOME}/bin/java $CELLHEALTH_CONF_PATH $CONFILE $CLIENTSAS $STDINCLIENTSAS $SERVERSAS $CLIENTSOAP $CLIENTIPC $JAASSOAP $CLIENTSSL $WAS_LOGGING -cp $CLASSPATH:${CELLHEALTH_HOME}/lib $LOG4JAVA -jar ${MAIN_JAR} $DMGR_CONFIG $@"
+	CMD="${JAVA_HOME}/bin/java $CELLHEALTH_PATH $CONFILE $CLIENTSAS $STDINCLIENTSAS $SERVERSAS $CLIENTSOAP $CLIENTIPC $JAASSOAP $CLIENTSSL $WAS_LOGGING -cp $CLASSPATH:${CELLHEALTH_HOME}/lib $LOG4JAVA -jar ${MAIN_JAR} $DMGR_CONFIG $@"
 
 	nohup  su - $EXEC_USER -c "$CMD" 0<&- &> $CELLHEALTH_HOME/logs/start.log &
 
 }
 
 function show_ch_opts() {
-	${JAVA_HOME}/bin/java $CELLHEALTH_CONF_PATH $CONFILE $CLIENTSAS $STDINCLIENTSAS $SERVERSAS $CLIENTSOAP $CLIENTIPC $JAASSOAP $CLIENTSSL $WAS_LOGGING -cp $CLASSPATH:${CELLHEALTH_HOME}/lib $LOG4JAVA -jar ${MAIN_JAR} $DMGR_CONFIG -h
+	${JAVA_HOME}/bin/java $CELLHEALTH_PATH $CONFILE $CLIENTSAS $STDINCLIENTSAS $SERVERSAS $CLIENTSOAP $CLIENTIPC $JAASSOAP $CLIENTSSL $WAS_LOGGING -cp $CLASSPATH:${CELLHEALTH_HOME}/lib $LOG4JAVA -jar ${MAIN_JAR} $DMGR_CONFIG -h
 }
 
 function status() {

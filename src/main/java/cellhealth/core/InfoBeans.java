@@ -3,6 +3,7 @@ package cellhealth.core;
 import cellhealth.core.connection.MBeansManager;
 import cellhealth.core.connection.WASConnection;
 import com.ibm.websphere.management.exception.ConnectorException;
+import com.ibm.websphere.pmi.stat.WSStats;
 
 import javax.management.InstanceNotFoundException;
 import javax.management.IntrospectionException;
@@ -78,6 +79,45 @@ public class InfoBeans {
                 print("\n\t Name: " + mbeanAttributeInfo.getName() + "\n");
                 print("\t Type: " + mbeanAttributeInfo.getType() + "\n");
                 print("\t Description: " + mbeanAttributeInfo.getDescription() + "\n");
+            }
+            print("##################################\n\n");
+        }
+    }
+
+    public void listAttributesBeanTemp(){
+        this.startFile("listAttributeBeans.info");
+        for(ObjectName objectName: mbeansManager.getMBeans(this.query)){
+            print("############## BEAN ##############\n");
+            print("ObjectName = " + objectName.toString());
+
+            MBeanInfo mbeanInfo = getBean(objectName);
+            boolean haencontradostats = false;
+            for(MBeanAttributeInfo mbeanAttributeInfo: mbeanInfo.getAttributes()){
+                if("stats".equals(mbeanAttributeInfo.getName())){
+                    try {
+                        WSStats wsStats;
+
+                            ObjectName serverPerfMBean = mbeansManager.getMBean("WebSphere:type=Perf,node=" + objectName.getKeyProperty("node") + ",process=" + objectName.getKeyProperty("process") + ",*");
+                            String[] signature = new String[]{"javax.management.ObjectName", "java.lang.Boolean"};
+                            Object[] params = new Object[]{objectName, false};
+                            if(serverPerfMBean == null){
+                                print("Can't construct perf bean\n");
+                            } else {
+                                wsStats = (WSStats) mbeansManager.getClient().invoke(serverPerfMBean, "getStatsObject", params, signature);
+                                if (wsStats != null) {
+                                    print(" Stats = " + wsStats.getStatsType() + "\n");
+                                } else {
+                                    print(" wstats = null \n");
+                                }
+                            }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    haencontradostats = true;
+                }
+            }
+            if(!haencontradostats){
+                print(" PMItype = null\n");
             }
             print("##################################\n\n");
         }
