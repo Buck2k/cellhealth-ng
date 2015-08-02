@@ -29,7 +29,7 @@ public class WASConnectionSOAP implements WASConnection {
             this.connect();
             if(this.client == null) {
                 try {
-                    Thread.sleep(60000L);
+                    Thread.sleep(Settings.propertie().getSoapInterval());
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

@@ -10,6 +10,7 @@ import com.ibm.websphere.pmi.stat.WSStatistic;
 import com.ibm.websphere.pmi.stat.WSStats;
 
 import javax.management.ObjectName;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -36,6 +37,7 @@ public class Capturer {
         if (!"dmgr".equals(this.serverName)) {
             stats = getStats(getWSStats());
         }
+
         return stats;
     }
 
@@ -54,70 +56,74 @@ public class Capturer {
         }
         return wsStats;
     }
-
     private List<String> getStats(WSStats wsStats) {
         List<String> stats = new LinkedList<String>();
         if (wsStats != null) {
             for (MetricGroup metricGroup : this.metricGroups) {
-                WSStats auxStats;
-                if(!metricGroup.isUniqueInstance()){
-                    if(metricGroup.getInstanceFilter() == null || metricGroup.getInstanceFilter().size() > 0) {
-                        for (String instance : metricGroup.getInstanceFilter()) {
-                            auxStats = findStatsByMetricGroupType(instance, wsStats);
-                            if (auxStats != null) {
-                                stats.addAll(getStatsType(metricGroup, auxStats));
-                            } else {
-                                L4j.getL4j().warning("Node: " + this.node + " Server: " + this.serverName + " Not found statstype " + metricGroup.getStatsType());
-                            }
-                        }
-                    } else {
-                        for(WSStats allstats: getAllInstances(metricGroup.getStatsType(), wsStats)){
-                            stats.addAll(getStatsType(metricGroup, allstats));
-                        }
-                    }
+                WSStats especificStats = wsStats.getStats(metricGroup.getStatsType());
+                if(especificStats != null){
+                    stats.addAll(getStatsType(metricGroup, especificStats));
                 } else {
-                    auxStats = findStatsByMetricGroupType(metricGroup.getStatsType(), wsStats);
-                    if (auxStats != null) {
-                        stats.addAll(getStatsType(metricGroup, auxStats));
-                    } else {
-                        L4j.getL4j().warning("Node: " + this.node + " Server: " + this.serverName + " Not found statstype " + metricGroup.getStatsType());
-                    }
+                    L4j.getL4j().warning("Node: " + this.node + " Server: " + this.serverName + " Not found statstype " + metricGroup.getStatsType());
                 }
-
             }
-        } else {
-            L4j.getL4j().warning("Server " + this.serverName + " node " + this.node + "don't generate wstats");
         }
         return stats;
     }
-
     public List<String> getStatsType(MetricGroup metricGroup, WSStats wsStats) {
         List<String> result = new LinkedList<String>();
-
-        if (metricGroup == null || metricGroup.getMetrics() == null || metricGroup.getStatsType() == null || metricGroup.getMetrics().size() == 0) {
-            throw new IllegalArgumentException();
-        }
+        List<String> globalStats;
+        List<String> instances;
         this.prefix = this.serverPerfMBean.getKeyProperty("cell") + "." + this.serverPerfMBean.getKeyProperty("process") + "." + metricGroup.getPrefix();
-        for (Metric metric : metricGroup.getMetrics()) {
-            WSStatistic wsStatistic = wsStats.getStatistic(metric.getId());
-            result.addAll(UtilsWSStatistic.parseStatistics(this.prefix, wsStatistic));
+        globalStats = getGlobalStats(wsStats, metricGroup, this.prefix);
+        if(globalStats.size() > 0) {
+            result.addAll(globalStats);
+        }
+        if(wsStats.getSubStats().length > 0){
+            instances = getInstances(Arrays.asList(wsStats.getSubStats()), metricGroup, this.prefix);
+            if(instances.size() > 0){
+                result.addAll(instances);
+            }
         }
         return result;
     }
 
-    public WSStats findStatsByMetricGroupType(String type, WSStats wsStats){
-        WSStats result = null;
-        WSStats aux = wsStats.getStats(type);
-        if(aux == null && wsStats.getSubStats().length > 0) {
-            for(WSStats substat: wsStats.getSubStats()){
-                findStatsByMetricGroupType(type, substat);
+    public List<String> getInstances(List<WSStats> wsStats, MetricGroup metricGroup, String path) {
+        List<String> result = new LinkedList<String>();
+        for(WSStats substats: wsStats){
+            String auxName = substats.getName().replace(".", "_");
+            auxName = auxName.replace(" ", "_");
+            auxName = auxName.replace("/", "_");
+            auxName = auxName.replace(":", "_");
+            auxName = auxName.replace(")", "");
+            auxName = auxName.replace("(", "");
+            String auxPath = path + "." + auxName;
+            for(Metric metric: metricGroup.getMetrics()){
+                WSStatistic wsStatistic = substats.getStatistic(metric.getId());
+                result.addAll(UtilsWSStatistic.parseStatistics(auxPath, wsStatistic));
             }
-        } else if(aux != null){
-            result = aux;
+            if(substats.getSubStats().length > 0){
+                getInstances(Arrays.asList(substats.getSubStats()), metricGroup, auxPath);
+            }
+
         }
         return result;
     }
-    public List<WSStats> getAllInstances(String type, WSStats wsStats){
+
+
+    public List<String> getGlobalStats(WSStats wsStats, MetricGroup metricGroup, String prefix) {
+        List<String> result = new LinkedList<String>();
+        if(wsStats.getSubStats().length > 0){
+            prefix = prefix + ".global";
+        }
+        for(Metric metric: metricGroup.getMetrics()){
+            WSStatistic wsStatistic = wsStats.getStatistic(metric.getId());
+            result.addAll(UtilsWSStatistic.parseStatistics(prefix, wsStatistic));
+        }
+        return result;
+    }
+
+    public List<WSStats> getAllInstances(WSStats wsStats){
         List<WSStats> result = new LinkedList<WSStats>();
         for(WSStats allstats: wsStats.getSubStats()){
             result.add(allstats);

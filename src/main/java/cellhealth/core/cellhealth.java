@@ -1,11 +1,13 @@
 package cellhealth.core;
 
 import cellhealth.core.connection.WASConnectionSOAP;
+
 import cellhealth.core.test.TestMetrics;
 import cellhealth.core.threads.Metrics.ThreadManager;
 import cellhealth.utils.logs.L4j;
 import cellhealth.utils.properties.Settings;
 import cellhealth.utils.properties.xml.ReadMetricXml;
+
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -133,6 +135,9 @@ public class cellhealth {
     }
 
     public static void launchTest() {
+        L4j.getL4j().info("Starting CellHealth - Metrics Tree");
+//        TreeBeans treeBeans = new TreeBeans(new WASConnectionSOAP());
+//        treeBeans.list();
         TestMetrics listMetrics = new TestMetrics(new WASConnectionSOAP());
         listMetrics.test();
     }

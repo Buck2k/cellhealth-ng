@@ -39,7 +39,7 @@ public class MetricsCollector implements Runnable {
             e.printStackTrace();
         }
         if(this.capturer != null && this.capturer.getPrefix() != null) {
-            List<String> csStats = new LinkedList<String>();
+            System.out.println("ENTRA");
             String[] aux = this.capturer.getPrefix().split("\\.");
             String pathChStats = aux[0] + ".ch_stats";
             String retrieveTime = pathChStats + ".servers." + aux[1] + ".retrieve_time " + serverIn + " " + System.currentTimeMillis() / 1000L + "\n";

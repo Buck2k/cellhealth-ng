@@ -16,6 +16,9 @@ public class Settings {
 
     private String hostWebsphere;
     private String portWebsphere;
+    private long threadInterval;
+    private long senderInterval;
+    private long soapInterval;
     private String l4jPattern;
     private String l4jPatternConfig;
     private String appName;
@@ -26,10 +29,11 @@ public class Settings {
     private String pathLog;
     private String logLevel;
 
-    private Settings(){}
+    private Settings() {
+    }
 
-    public static synchronized Settings propertie(){
-        if(instance == null) {
+    public static synchronized Settings propertie() {
+        if (instance == null) {
             instance = new Settings();
             instance.globalProperties();
             instance.readBaseProperties();
@@ -38,23 +42,26 @@ public class Settings {
         return instance;
     }
 
-    private static void globalProperties(){
+    private static void globalProperties() {
         instance.setPathConf(Constants.CELLHEALTH_PATH + "conf/");
     }
 
-    private static void readBaseProperties(){
+    private static void readBaseProperties() {
         FileInputStream fileProperties;
         try {
             fileProperties = new FileInputStream(Constants.PATH_CELLHEALT_PROPERTIES);
             Properties confProperties = new Properties();
             confProperties.load(fileProperties);
-            instance.setHostWebsphere(confProperties.getProperty("host_websphere"));
-            instance.setPortWebsphere(confProperties.getProperty("port_soap_websphere"));
+            instance.setHostWebsphere(confProperties.getProperty("was-adminhost"));
+            instance.setPortWebsphere(confProperties.getProperty("was-soapport"));
+            instance.setThreadInterval(Long.valueOf(confProperties.getProperty("ch_query_interval_secs")) * 1000l);
+            instance.setSenderInterval(Long.valueOf(confProperties.getProperty("ch_reconnect_timeout")) * 1000l);
+            instance.setSoapInterval(Long.valueOf(confProperties.getProperty("ch_soap_interval_secs")) * 1000l);
             instance.setPathSenderConf(instance.getPathConf() + confProperties.getProperty("sender_properties"));
-            String logPath = (confProperties.getProperty("ch_output_log_path") == null)? "cellhealth-ng.log":confProperties.getProperty("ch_output_log_path");
+            String logPath = (confProperties.getProperty("ch_output_log_path") == null) ? "cellhealth-ng.log" : confProperties.getProperty("ch_output_log_path");
             logPath = Constants.CELLHEALTH_PATH + "logs/" + logPath;
             instance.setPathLog(logPath);
-            String logLevel = (confProperties.getProperty("ch_output_log_level") == null)? "INFO":confProperties.getProperty("ch_output_log_level");
+            String logLevel = (confProperties.getProperty("ch_output_log_level") == null) ? "INFO" : confProperties.getProperty("ch_output_log_level");
             instance.setLogLevel(logLevel);
             fileProperties.close();
         } catch (IOException e) {
@@ -63,7 +70,7 @@ public class Settings {
     }
 
 
-    private static void readL4jProperties(){
+    private static void readL4jProperties() {
         FileInputStream fileProperties;
         try {
             fileProperties = new FileInputStream(Constants.PATH_L4J_PROPERTIES);
@@ -174,5 +181,29 @@ public class Settings {
 
     public void setLogLevel(String logLevel) {
         this.logLevel = logLevel;
+    }
+
+    public long getThreadInterval() {
+        return threadInterval;
+    }
+
+    public void setThreadInterval(long threadInterval) {
+        this.threadInterval = threadInterval;
+    }
+
+    public long getSenderInterval() {
+        return senderInterval;
+    }
+
+    public void setSenderInterval(long senderInterval) {
+        this.senderInterval = senderInterval;
+    }
+
+    public long getSoapInterval() {
+        return soapInterval;
+    }
+
+    public void setSoapInterval(long soapInterval) {
+        this.soapInterval = soapInterval;
     }
 }

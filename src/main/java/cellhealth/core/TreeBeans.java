@@ -24,7 +24,7 @@ import java.util.TreeSet;
 /**
  * Created by Alberto Pascual on 23/06/15.
  */
-public class ListMetrics {
+public class TreeBeans {
 
     private MBeansManager mbeansManager;
     private Scanner scanner;
@@ -32,11 +32,11 @@ public class ListMetrics {
     private final String sufic;
     private File file;
 
-    public ListMetrics(WASConnection wasConnection) {
+    public TreeBeans(WASConnection wasConnection) {
         this.mbeansManager = new MBeansManager(wasConnection);
         this.scanner = new Scanner(System.in);
         this.prefix = "logs/";
-        this.sufic = "metrics.info";
+        this.sufic = "tree.info";
 
     }
 
@@ -50,7 +50,8 @@ public class ListMetrics {
         String option;
         boolean exit = false;
         do {
-            System.out.print("You specify the server you want to display the list of metrics (y/n(default))");
+
+            System.out.print("You specify the server you want to display the tree of metrics (y/n(default))");
             option = scanner.nextLine();
             if (options.contains(option.toLowerCase()) || option == null || option.length() == 0) {
                 exit = true;
@@ -97,6 +98,8 @@ public class ListMetrics {
             System.out.println("Server: " + serverPerfMBean.getKeyProperty("process") + " Node: " + node);
         }
         System.out.println("Query perf bean: " + serverPerfMBean);
+//        ObjectName specificBean = mbeansManager.getMBean("WebSphere:name=" + serverPerfMBean.getKeyProperty("process") + ",node=" + serverPerfMBean.getKeyProperty(Constants.NODE) + ",process=" + serverPerfMBean.getKeyProperty("process") + ",*");
+//        System.out.println("Query specific bean: " +specificBean);
 
         Set<MBeanStats> typeBeans = new TreeSet<MBeanStats>();
         L4j.getL4j().info(new StringBuilder("Getting the list of names and possible metric of the node: ").append(serverPerfMBean.getKeyProperty("node")).append(", instance: ").append(serverPerfMBean.getKeyProperty("process")).toString());
@@ -129,7 +132,7 @@ public class ListMetrics {
         }
 
         print("\n\n");
-        print("List of MBeans (Statistics)\n");
+        print("Tree of MBeans (Statistics)\n");
         print("###########################");
         for(MBeanStats t: typeBeans) {
             if(t.getObjectName().getKeyProperty("name").equals(serverPerfMBean.getKeyProperty("process"))) {
@@ -141,33 +144,25 @@ public class ListMetrics {
     }
 
     public void mostrarStats(MBeanStats t){
-        print("\n\tMetric name: (1 nivel): " + t.getWsStats().getName() + "\n");
+        print("\nServidor: " + t.getWsStats().getName() + "\n");
         if(t.isSubStats()){
             mostrarSubstats(t.getWsStats().getSubStats(), 1);
-        } else {
-            for(WSStatistic statistic:t.getWsStats().getStatistics()){
-                mostrarValoresStatistis(statistic);
-            }
         }
-    }
-
-    public void mostrarValoresStatistis(WSStatistic statistic){
-        print("\t\tId: " + statistic.getId() + " Name: " + statistic.getName() + "\n");
     }
 
     public void mostrarSubstats(WSStats[] stats, int cant){
         cant++;
         for(WSStats statss: stats){
-            print("\n\tMetric name (" + cant + " nivel): " + statss.getName() + "\n");
-            for(WSStatistic statistic:statss.getStatistics()){
-                mostrarValoresStatistis(statistic);
+            String tab = "";
+            for(int i=0;i<cant;i++){
+                tab = tab + "\t";
             }
+            print("\n" + tab + statss.getName() + "\n");
             if(statss.getSubStats().length > 0) {
                 mostrarSubstats(statss.getSubStats(), cant);
             }
         }
     }
-
 
     public void print(String line) {
         System.out.print(line);

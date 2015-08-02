@@ -9,11 +9,14 @@ import cellhealth.sender.graphite.sender.GraphiteSender;
 import cellhealth.utils.Utils;
 import cellhealth.utils.constants.Constants;
 import cellhealth.utils.logs.L4j;
+import cellhealth.utils.properties.Settings;
 import cellhealth.utils.properties.xml.MetricGroup;
 import com.ibm.websphere.management.exception.ConnectorException;
 import com.ibm.websphere.management.exception.ConnectorNotAvailableException;
 
+import javax.management.MBeanServer;
 import javax.management.ObjectName;
+import java.lang.management.*;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -50,7 +53,7 @@ public class ThreadManager implements Runnable {
         while(throwThreads){
             try {
                 this.launchThreads();
-                Thread.sleep(60000l);
+                Thread.sleep(Settings.propertie().getThreadInterval());
             } catch (InterruptedException e) {
                 e.printStackTrace();
                 L4j.getL4j().error("", e);
@@ -81,16 +84,16 @@ public class ThreadManager implements Runnable {
         while(waitToThreads){
             Long elapsed =  new Date().getTime() - timeCountStart.getTime();
             if(executor.isTerminated()){
-//                Runtime runtime = Runtime.getRuntime();
-//
-//                String retrieveTime = chStats.getPathChStats() + ".global.retrieve_time " + elapsed + " " + System.currentTimeMillis() / 1000L + "\n";
-//                String numberMetrics = chStats.getPathChStats() + ".global.number_metrics " + chStats.getMetrics() + " " + System.currentTimeMillis() / 1000L + "\n";
-//                String jvmFreeMemory = chStats.getPathChStats() + ".global.jvm.freememory" + runtime.freeMemory() + " " + System.currentTimeMillis() / 1000L + "\n";
-//                String jvmMaxMemory = chStats.getPathChStats() + ".global.jvm.maxmemory" + runtime.maxMemory() + " " + System.currentTimeMillis() / 1000L + "\n";
-//                String jvmTotalMemory = chStats.getPathChStats() + ".global.jvm.totalmemory" + runtime.totalMemory() + " " + System.currentTimeMillis() / 1000L + "\n";
-//                String availableProcessors = chStats.getPathChStats() + ".global.jvm.availableprocessors" + runtime.availableProcessors() + " " + System.currentTimeMillis() / 1000L + "\n";
-//                chStats.add(retrieveTime);
-//                chStats.add(numberMetrics);
+                Runtime runtime = Runtime.getRuntime();
+
+                String retrieveTime = chStats.getPathChStats() + ".global.retrieve_time " + elapsed + " " + System.currentTimeMillis() / 1000L + "\n";
+                String numberMetrics = chStats.getPathChStats() + ".global.number_metrics " + chStats.getMetrics() + " " + System.currentTimeMillis() / 1000L + "\n";
+                String jvmFreeMemory = chStats.getPathChStats() + ".global.jvm.freememory" + runtime.freeMemory() + " " + System.currentTimeMillis() / 1000L + "\n";
+                String jvmMaxMemory = chStats.getPathChStats() + ".global.jvm.maxmemory" + runtime.maxMemory() + " " + System.currentTimeMillis() / 1000L + "\n";
+                String jvmTotalMemory = chStats.getPathChStats() + ".global.jvm.totalmemory" + runtime.totalMemory() + " " + System.currentTimeMillis() / 1000L + "\n";
+                String availableProcessors = chStats.getPathChStats() + ".global.jvm.availableprocessors" + runtime.availableProcessors() + " " + System.currentTimeMillis() / 1000L + "\n";
+                chStats.add(retrieveTime);
+                chStats.add(numberMetrics);
 
                 if(chStats.getStats() != null) {
                     for (String metric : chStats.getStats()) {
@@ -135,7 +138,7 @@ public class ThreadManager implements Runnable {
         while(!sender.isConnected()){
             try {
                 L4j.getL4j().warning("The sender is not connected , waiting to connect");
-                Thread.sleep(6000l);
+                Thread.sleep(Settings.propertie().getSenderInterval() / 2);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
