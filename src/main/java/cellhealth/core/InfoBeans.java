@@ -3,7 +3,6 @@ package cellhealth.core;
 import cellhealth.core.connection.MBeansManager;
 import cellhealth.core.connection.WASConnection;
 import com.ibm.websphere.management.exception.ConnectorException;
-import com.ibm.websphere.pmi.stat.WSStats;
 
 import javax.management.InstanceNotFoundException;
 import javax.management.IntrospectionException;
@@ -15,21 +14,17 @@ import javax.management.ReflectionException;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Scanner;
 
-/**
- * Created by Alberto Pascual on 24/07/15.
- */
+
 public class InfoBeans {
+
     private MBeansManager mbeansManager;
-    private Scanner scanner;
     private final String prefix;
     private File file;
     private String query;
 
     public InfoBeans(WASConnection wasConnection) {
         this.mbeansManager = new MBeansManager(wasConnection);
-        this.scanner = new Scanner(System.in);
         this.query = "*:*";
         this.prefix = "logs/";
     }
@@ -84,45 +79,6 @@ public class InfoBeans {
         }
     }
 
-    public void listAttributesBeanTemp(){
-        this.startFile("listAttributeBeans.info");
-        for(ObjectName objectName: mbeansManager.getMBeans(this.query)){
-            print("############## BEAN ##############\n");
-            print("ObjectName = " + objectName.toString());
-
-            MBeanInfo mbeanInfo = getBean(objectName);
-            boolean haencontradostats = false;
-            for(MBeanAttributeInfo mbeanAttributeInfo: mbeanInfo.getAttributes()){
-                if("stats".equals(mbeanAttributeInfo.getName())){
-                    try {
-                        WSStats wsStats;
-
-                            ObjectName serverPerfMBean = mbeansManager.getMBean("WebSphere:type=Perf,node=" + objectName.getKeyProperty("node") + ",process=" + objectName.getKeyProperty("process") + ",*");
-                            String[] signature = new String[]{"javax.management.ObjectName", "java.lang.Boolean"};
-                            Object[] params = new Object[]{objectName, false};
-                            if(serverPerfMBean == null){
-                                print("Can't construct perf bean\n");
-                            } else {
-                                wsStats = (WSStats) mbeansManager.getClient().invoke(serverPerfMBean, "getStatsObject", params, signature);
-                                if (wsStats != null) {
-                                    print(" Stats = " + wsStats.getStatsType() + "\n");
-                                } else {
-                                    print(" wstats = null \n");
-                                }
-                            }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    haencontradostats = true;
-                }
-            }
-            if(!haencontradostats){
-                print(" PMItype = null\n");
-            }
-            print("##################################\n\n");
-        }
-    }
-
     public MBeanInfo getBean(ObjectName objectName){
         MBeanInfo mbeanInfo = null;
         try {
@@ -155,7 +111,7 @@ public class InfoBeans {
 
     public void print(String line) {
         System.out.print(line);
-        FileWriter fileWriter = null;
+        FileWriter fileWriter;
         try {
             fileWriter = new FileWriter(this.file, true);
             fileWriter.write(line);

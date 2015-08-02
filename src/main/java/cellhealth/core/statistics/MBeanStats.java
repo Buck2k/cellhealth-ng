@@ -1,13 +1,9 @@
 package cellhealth.core.statistics;
 
-import cellhealth.core.connection.MBeansManager;
 import com.ibm.websphere.pmi.stat.WSStats;
 
 import javax.management.ObjectName;
 
-/**
- * Created by Alberto Pascual on 25/06/15.
- */
 public class MBeanStats implements Comparable<MBeanStats>{
 
     private String name;
@@ -15,16 +11,6 @@ public class MBeanStats implements Comparable<MBeanStats>{
     private WSStats wsStats;
 
     private ObjectName ObjectName;
-
-    private Integer cant;
-
-    public Integer getCant() {
-        return cant;
-    }
-
-    public void setCant(Integer cant) {
-        this.cant = cant;
-    }
 
     public ObjectName getObjectName() {
         return ObjectName;
@@ -60,8 +46,8 @@ public class MBeanStats implements Comparable<MBeanStats>{
         this.wsStats = wsStats;
     }
 
+    public int compareTo(MBeanStats mbeanStats) {
 
-    public int compareTo(MBeanStats o) {
-        return name.compareTo(o.getName());
+        return name.compareTo(mbeanStats.getName());
     }
 }

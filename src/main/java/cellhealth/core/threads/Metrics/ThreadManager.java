@@ -14,9 +14,8 @@ import cellhealth.utils.properties.xml.MetricGroup;
 import com.ibm.websphere.management.exception.ConnectorException;
 import com.ibm.websphere.management.exception.ConnectorNotAvailableException;
 
-import javax.management.MBeanServer;
+
 import javax.management.ObjectName;
-import java.lang.management.*;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -24,24 +23,17 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-/**
- * Created by Alberto Pascual on 7/07/15.
- */
 public class ThreadManager implements Runnable {
 
     private WASConnection wasConnection;
     private Sender sender;
     private MBeansManager mbeansManager;
     private List<MetricGroup> metricGroups;
-    private boolean throwThreads;
-    private boolean isWaiting;
 
     public ThreadManager(List<MetricGroup> metricGroups) {
         this.metricGroups = metricGroups;
         this.connectToWebSphere();
         this.sender = this.getSender();
-        this.throwThreads = true;
-        this.isWaiting = !this.throwThreads;
     }
 
     private void startMBeansManager()  {
@@ -50,13 +42,14 @@ public class ThreadManager implements Runnable {
 
     public void run() {
         Utils.showInstances(this.mbeansManager);
-        while(throwThreads){
+        boolean start = true;
+        while(start){
             try {
                 this.launchThreads();
                 Thread.sleep(Settings.propertie().getThreadInterval());
             } catch (InterruptedException e) {
-                e.printStackTrace();
-                L4j.getL4j().error("", e);
+                start = false;
+                L4j.getL4j().error("TreadManager sleep error: ", e);
             }
         }
     }
@@ -85,16 +78,18 @@ public class ThreadManager implements Runnable {
             Long elapsed =  new Date().getTime() - timeCountStart.getTime();
             if(executor.isTerminated()){
                 Runtime runtime = Runtime.getRuntime();
-
                 String retrieveTime = chStats.getPathChStats() + ".global.retrieve_time " + elapsed + " " + System.currentTimeMillis() / 1000L + "\n";
                 String numberMetrics = chStats.getPathChStats() + ".global.number_metrics " + chStats.getMetrics() + " " + System.currentTimeMillis() / 1000L + "\n";
-                String jvmFreeMemory = chStats.getPathChStats() + ".global.jvm.freememory" + runtime.freeMemory() + " " + System.currentTimeMillis() / 1000L + "\n";
-                String jvmMaxMemory = chStats.getPathChStats() + ".global.jvm.maxmemory" + runtime.maxMemory() + " " + System.currentTimeMillis() / 1000L + "\n";
-                String jvmTotalMemory = chStats.getPathChStats() + ".global.jvm.totalmemory" + runtime.totalMemory() + " " + System.currentTimeMillis() / 1000L + "\n";
-                String availableProcessors = chStats.getPathChStats() + ".global.jvm.availableprocessors" + runtime.availableProcessors() + " " + System.currentTimeMillis() / 1000L + "\n";
+                String jvmFreeMemory = chStats.getPathChStats() + ".global.jvm.freememory " + runtime.freeMemory() + " " + System.currentTimeMillis() / 1000L + "\n";
+                String jvmMaxMemory = chStats.getPathChStats() + ".global.jvm.maxmemory " + runtime.maxMemory() + " " + System.currentTimeMillis() / 1000L + "\n";
+                String jvmTotalMemory = chStats.getPathChStats() + ".global.jvm.totalmemory " + runtime.totalMemory() + " " + System.currentTimeMillis() / 1000L + "\n";
+                String availableProcessors = chStats.getPathChStats() + ".global.jvm.availableprocessors " + runtime.availableProcessors() + " " + System.currentTimeMillis() / 1000L + "\n";
                 chStats.add(retrieveTime);
                 chStats.add(numberMetrics);
-
+                chStats.add(jvmFreeMemory);
+                chStats.add(jvmMaxMemory);
+                chStats.add(jvmTotalMemory);
+                chStats.add(availableProcessors);
                 if(chStats.getStats() != null) {
                     for (String metric : chStats.getStats()) {
                         sender.send(chStats.getHost(), metric);
@@ -106,7 +101,6 @@ public class ThreadManager implements Runnable {
                 L4j.getL4j().critical("The threads are taking too");
             }
         }
-
     }
     public void connectToWebSphere(){
         this.wasConnection = new WASConnectionSOAP();
@@ -116,15 +110,6 @@ public class ThreadManager implements Runnable {
         GraphiteSender sender = new GraphiteSender();
         sender.init();
         return sender;
-    }
-
-    public void setThrowThreads(boolean throwThreads) {
-        this.throwThreads = throwThreads;
-        this.isWaiting = !throwThreads;
-    }
-
-    public boolean isWaiting() {
-        return isWaiting;
     }
 
     public void checkConnections(){

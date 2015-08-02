@@ -43,10 +43,9 @@ public class MBeansManager {
         }
         Set objects = null;
         try {
-
             objects = this.client.queryNames(new ObjectName(query), null);
         } catch (ConnectorNotAvailableException e) {
-            L4j.getL4j().warning(e.toString());
+            L4j.getL4j().warning("Connector not available");
         } catch (ConnectorException e) {
             String[] classNameSplit = this.getClass().getName().split("\\.");
             L4j.getL4j().error(classNameSplit[classNameSplit.length-1] + ", " + Error.CONNECTOR_ERROR, e);
@@ -94,23 +93,8 @@ public class MBeansManager {
      * Lanza la consulta "WebSphere:*,type=Server,j2eeType=J2EEServer"
      * @return all runtime servers
      */
-    public Set getAllServerRuntimes()  {
+    public Set<ObjectName> getAllServerRuntimes()  {
             return this.getMBeans(Constants.QUERY_SERVER_RUNTIME);
-    }
-
-    /**
-     * Obtiene el nodo de un servidor devuelto por adminclient
-     * Se utiliza para calcular el nombre de maquina.
-     * @return nodo del servidor
-     */
-    public String getNodeServerMBeanN(){
-        String node = null;
-        try {
-            node = this.client.getServerMBean().getKeyProperty(Constants.NAME);
-        } catch (ConnectorException e) {
-            L4j.getL4j().warning("e");
-        }
-        return node;
     }
 
     public String getNodeServerMBean(){

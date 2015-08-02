@@ -2,18 +2,10 @@ package cellhealth.core.threads.Metrics;
 
 import cellhealth.core.statistics.Capturer;
 import cellhealth.sender.Sender;
-import cellhealth.utils.properties.Settings;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Properties;
 
-/**
- * Created by Alberto Pascual on 19/06/15.
- */
+
 public class MetricsCollector implements Runnable {
 
     private final Capturer capturer;
@@ -32,14 +24,7 @@ public class MetricsCollector implements Runnable {
         List<String> metrics = this.capturer.getMetrics();
         long serverIn = (System.currentTimeMillis() - start_time);
         this.sendAllMetricRange(metrics);
-        Properties prop = new Properties();
-        try {
-            prop.load(new FileInputStream(Settings.propertie().getPathSenderConf()));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        if(this.capturer != null && this.capturer.getPrefix() != null) {
-            System.out.println("ENTRA");
+        if(this.capturer.getPrefix() != null) {
             String[] aux = this.capturer.getPrefix().split("\\.");
             String pathChStats = aux[0] + ".ch_stats";
             String retrieveTime = pathChStats + ".servers." + aux[1] + ".retrieve_time " + serverIn + " " + System.currentTimeMillis() / 1000L + "\n";
@@ -64,10 +49,4 @@ public class MetricsCollector implements Runnable {
         }
     }
 
-    private String orderTreeByProperties(String metric){
-        //pro.bbdd.wastest.wls.wastestCell.server2.conpool.WaitingThreadCount.integral 0.0 1437248069
-        String[] splitOne = metric.split(" ");
-        List<String> splitNodes = Arrays.asList(splitOne[0].split("."));
-        return null;
-    }
 }

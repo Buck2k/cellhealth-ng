@@ -21,9 +21,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-/**
- * Created by Alberto Pascual on 23/06/15.
- */
 public class ListMetrics {
 
     private MBeansManager mbeansManager;
@@ -171,7 +168,7 @@ public class ListMetrics {
 
     public void print(String line) {
         System.out.print(line);
-        FileWriter fileWriter = null;
+        FileWriter fileWriter;
         try {
             fileWriter = new FileWriter(this.file, true);
             fileWriter.write(line);

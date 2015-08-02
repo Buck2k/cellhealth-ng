@@ -38,4 +38,14 @@ public class Utils {
             L4j.getL4j().info("SERVER :" + serverName + " NODE: " + showServerHost);
         }
     }
+
+    public static String getParseBeanName(String beanName){
+        beanName = beanName.replace(".", "_");
+        beanName = beanName.replace(" ", "_");
+        beanName = beanName.replace("/", "_");
+        beanName = beanName.replace(":", "_");
+        beanName = beanName.replace(")", "");
+        beanName = beanName.replace("(", "");
+        return beanName;
+    }
 }

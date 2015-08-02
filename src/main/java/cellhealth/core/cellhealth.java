@@ -15,10 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
-/**
- * Created by Alberto Pascual on 10/06/15.
- */
-
 public class cellhealth {
 
     public static void main(String[] args) throws Exception {
@@ -130,7 +126,7 @@ public class cellhealth {
             infoBeans.listOperationsBean();
         } else if(option == 3) {
             L4j.getL4j().info("Starting CellHealth - Bean list attributes");
-            infoBeans.listAttributesBeanTemp();
+            infoBeans.listAttributesBean();
         }
     }
 
@@ -152,7 +148,7 @@ public class cellhealth {
         L4j.getL4j().info("\t-l Show list of server beans");
         L4j.getL4j().info("\t-b Show all beans");
         L4j.getL4j().info("\t-o Show options of beans");
-        L4j.getL4j().info("\t-a Show attributes of beans");;
+        L4j.getL4j().info("\t-a Show attributes of beans");
         L4j.getL4j().info("\t-h this help");
         L4j.getL4j().info("CONFIGURATION OPTIONS (optional):");
         L4j.getL4j().info("\t--host host of websphere");

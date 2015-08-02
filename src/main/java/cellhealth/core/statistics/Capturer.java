@@ -29,9 +29,14 @@ public class Capturer {
         this.serverName = serverName;
         this.node = node;
         this.metricGroups = metricGroups;
+        //Obtiene el host de un servidor
         this.host = Utils.getHostByNode(mbeansManager.getNodeServerMBean());
     }
 
+    /**
+     * Metodo que obtiene las estadisticas de servidor pasado por parametros, menos DMGR
+     * @return listado de estadisticas
+     */
     public List<String> getMetrics() {
         List<String> stats = null;
         if (!"dmgr".equals(this.serverName)) {
@@ -56,6 +61,7 @@ public class Capturer {
         }
         return wsStats;
     }
+
     private List<String> getStats(WSStats wsStats) {
         List<String> stats = new LinkedList<String>();
         if (wsStats != null) {
@@ -91,13 +97,7 @@ public class Capturer {
     public List<String> getInstances(List<WSStats> wsStats, MetricGroup metricGroup, String path) {
         List<String> result = new LinkedList<String>();
         for(WSStats substats: wsStats){
-            String auxName = substats.getName().replace(".", "_");
-            auxName = auxName.replace(" ", "_");
-            auxName = auxName.replace("/", "_");
-            auxName = auxName.replace(":", "_");
-            auxName = auxName.replace(")", "");
-            auxName = auxName.replace("(", "");
-            String auxPath = path + "." + auxName;
+            String auxPath = path + "." + Utils.getParseBeanName(substats.getName());
             for(Metric metric: metricGroup.getMetrics()){
                 WSStatistic wsStatistic = substats.getStatistic(metric.getId());
                 result.addAll(UtilsWSStatistic.parseStatistics(auxPath, wsStatistic));
@@ -109,7 +109,6 @@ public class Capturer {
         }
         return result;
     }
-
 
     public List<String> getGlobalStats(WSStats wsStats, MetricGroup metricGroup, String prefix) {
         List<String> result = new LinkedList<String>();
@@ -123,24 +122,8 @@ public class Capturer {
         return result;
     }
 
-    public List<WSStats> getAllInstances(WSStats wsStats){
-        List<WSStats> result = new LinkedList<WSStats>();
-        for(WSStats allstats: wsStats.getSubStats()){
-            result.add(allstats);
-        }
-        return  result;
-    }
-
     public String getHost() {
         return this.host;
-    }
-
-    public String getServerName() {
-        return this.serverName;
-    }
-
-    public String getNode() {
-        return this.node;
     }
 
     public String getPrefix(){

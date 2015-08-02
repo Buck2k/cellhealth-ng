@@ -3,9 +3,6 @@ package cellhealth.core.threads.Metrics;
 import java.util.LinkedList;
 import java.util.List;
 
-/**
- * Created by Alberto Pascual on 23/07/15.
- */
 public class CHStats {
 
     private List<String> stats;
