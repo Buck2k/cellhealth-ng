@@ -100,10 +100,23 @@ public class Capturer {
             String auxPath = path + "." + Utils.getParseBeanName(substats.getName());
             for(Metric metric: metricGroup.getMetrics()){
                 WSStatistic wsStatistic = substats.getStatistic(metric.getId());
+                if("jndi_datasource_test1".equals(Utils.getParseBeanName(substats.getName()))){
+                    System.out.println(substats.getStatistic(metric.getId()));
+                }
                 result.addAll(UtilsWSStatistic.parseStatistics(auxPath, wsStatistic));
+
             }
             if(substats.getSubStats().length > 0){
                 getInstances(Arrays.asList(substats.getSubStats()), metricGroup, auxPath);
+//                if("Oracle_JDBC_Driver".equals(Utils.getParseBeanName(substats.getName()))){
+//                    for(WSStats wstatss:substats.getSubStats()){
+//                        System.out.println(Utils.getParseBeanName(wstatss.getName()));
+//                        System.out.println("test");
+//                        if("jndi_datasource_test1".equals(Utils.getParseBeanName(wstatss.getName()))){
+//                            System.out.println(wstatss);
+//                        }
+//                    }
+//                }
             }
 
         }
