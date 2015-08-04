@@ -26,7 +26,7 @@ public class Utils {
     }
     public static String getHostByNode(String node){
         node = node.toLowerCase();
-        String[] nodeSplit = node.split("Node");
+        String[] nodeSplit = node.split("node");
         return nodeSplit[0];
     }
 

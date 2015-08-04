@@ -19,7 +19,7 @@ public class UtilsWSStatistic {
 
     public static List<String> parseStatistics(String prefix, WSStatistic wsStatistic){
         List<String> result = new LinkedList<String>();
-        String type = null;
+        String type;
         if (wsStatistic != null && wsStatistic.getName() != null) {
             type = Utils.getWSStatisticType(wsStatistic);
             if ("CountStatistic".equals(type)) {
