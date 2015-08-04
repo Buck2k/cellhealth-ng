@@ -40,6 +40,7 @@ public class Capturer {
     public List<String> getMetrics() {
         List<String> stats = null;
         if (!"dmgr".equals(this.serverName)) {
+            System.out.println(this.serverName);
             stats = getStats(getWSStats());
         }
         return stats;
@@ -48,7 +49,7 @@ public class Capturer {
     private WSStats getWSStats() {
         WSStats wsStats = null;
         this.serverPerfMBean = mbeansManager.getMBean("WebSphere:type=Perf,node=" + this.node + ",process=" + this.serverName + ",*");
-        ObjectName objectName = mbeansManager.getMBean("WebSphere:name=" + this.serverName + ",node=" + this.node + ",process=" + this.serverName + ",*");
+        ObjectName objectName = mbeansManager.getMBean("WebSphere:name=" + this.serverName + ",node=" + this.node + ",process=" + this.serverName + ",type=Server,*");
         if (objectName != null) {
             String[] signature = new String[]{"javax.management.ObjectName", "java.lang.Boolean"};
             Object[] params = new Object[]{objectName, true};
@@ -58,6 +59,23 @@ public class Capturer {
                 L4j.getL4j().error("Capturer ", e);
             }
         }
+        return wsStats;
+    }
+
+    private WSStats getWSStatfs() {
+        WSStats wsStats = null;
+        int count = 0;
+        ObjectName objectName = mbeansManager.getMBean("WebSphere:name=" + this.serverName + ",node=" + this.node + ",process=" + this.serverName + ",type=Server,*");
+            String[] signature = new String[] {"javax.management.ObjectName","java.lang.Boolean"};
+            Object[] params = new Object[] {objectName, new Boolean(true)};
+            try {
+                wsStats = (WSStats) mbeansManager.getClient().invoke(mbeansManager.getMBean("WebSphere:type=Perf,node=" + this.node + ",process=" + this.serverName + ",*"), "getStatsObject", params, signature);
+                System.out.println(wsStats);
+                System.out.println(count++ + " " + this.serverName);
+            } catch (Exception e) {
+                L4j.getL4j().error("Capturer ", e);
+            }
+
         return wsStats;
     }
 
@@ -72,6 +90,8 @@ public class Capturer {
                     L4j.getL4j().warning("Node: " + this.node + " Server: " + this.serverName + " Not found statstype " + metricGroup.getStatsType());
                 }
             }
+        } else {
+            L4j.getL4j().warning("Node: " + this.node + " Server: " + this.serverName + " Not found stats");
         }
         return stats;
     }
