@@ -1,6 +1,5 @@
 package cellhealth.utils.properties.xml;
 
-
 import cellhealth.utils.logs.L4j;
 import cellhealth.utils.properties.Settings;
 import org.w3c.dom.Document;
@@ -13,8 +12,10 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by alberto on 1/07/15.
@@ -22,12 +23,14 @@ import java.util.List;
 public class ReadMetricXml {
 
     private Document dom;
+    private CellHealthMetrics cellHealthMetrics;
 
     public ReadMetricXml() {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         try {
             DocumentBuilder db = dbf.newDocumentBuilder();
             this.dom = db.parse(Settings.getInstance().getPathConf() + "metrics.xml");
+            this.getMetricGroup();
         } catch (ParserConfigurationException pce) {
             pce.printStackTrace();
         } catch (SAXException se) {
@@ -37,8 +40,10 @@ public class ReadMetricXml {
         }
     }
 
-    public List<MetricGroup> getMetricGroup() {
+    private void getMetricGroup() {
+        this.cellHealthMetrics = new CellHealthMetrics();
         List<MetricGroup> metricProperties = new LinkedList<MetricGroup>();
+        PmiStatsType pmiStatsType = new PmiStatsType();
         Element root = this.dom.getDocumentElement();
         NodeList nodeList = root.getChildNodes();
         if (nodeList != null && nodeList.getLength() > 0) {
@@ -49,11 +54,19 @@ public class ReadMetricXml {
                         Element element = (Element) node;
                         metricProperties.add(getMetricGroupProperties(node, element));
                     }
+                    if ("PMIStatsType".equals(node.getNodeName())) {
+                        Element element = (Element) node;
+                        boolean unit = getBooleanAttribute(element, "unit");
+                        String unitSeparator = getStringAttribute(element, "unitseparator");
+                        boolean separateMetric = getBooleanAttribute(element, "separateMetric");
+                        pmiStatsType = getPmiStatsTypeProperties(node, unit, unitSeparator, separateMetric);
+                    }
                 }
 
             }
         }
-        return metricProperties;
+        this.cellHealthMetrics.setMetricGroups(metricProperties);
+        this.cellHealthMetrics.setPmiStatsType(pmiStatsType);
     }
 
     private MetricGroup getMetricGroupProperties(Node node, Element element) {
@@ -69,6 +82,61 @@ public class ReadMetricXml {
             L4j.getL4j().error("Metrics.xml", new NullPointerException());
         }
         return metricGroup;
+    }
+
+    private PmiStatsType getPmiStatsTypeProperties(Node node, boolean unit, String unitSeparator, boolean separateMetric){
+        PmiStatsType pmiStatsType = new PmiStatsType();
+        pmiStatsType.setUnit(unit);
+        pmiStatsType.setUnitSeparator(unitSeparator);
+        pmiStatsType.setSeparateMetric(separateMetric);
+        NodeList nodeList = node.getChildNodes();
+        for (int i = 0; i < nodeList.getLength(); i++) {
+            Node no = nodeList.item(i);
+            if(no.getNodeType() == Node.ELEMENT_NODE) {
+                Element element = (Element) no;
+                if ("CountStatistic".equals(no.getNodeName())) {
+                    pmiStatsType.setCountStatistic("count", getBooleanAttribute(element, "count"));
+                } else if ("DoubleStatisc".equals(element.getTagName())) {
+                    pmiStatsType.setDoubleStatisc("count", getBooleanAttribute(element, "count"));
+                } else if ("AverageStatistic".equals(no.getNodeName())) {
+                    Map<String, Boolean> averageStatistic = new HashMap<String, Boolean>();
+                    averageStatistic.put("count", getBooleanAttribute(element, "count"));
+                    averageStatistic.put("total", getBooleanAttribute(element, "total"));
+                    averageStatistic.put("min", getBooleanAttribute(element, "min"));
+                    averageStatistic.put("max", getBooleanAttribute(element, "max"));
+                    pmiStatsType.setAverageStatistic(averageStatistic);
+                } else if ("BoundaryStatistic".equals(no.getNodeName())) {
+                    Map<String, Boolean> boundaryStatistic = new HashMap<String, Boolean>();
+                    boundaryStatistic.put("upperBound", getBooleanAttribute(element, "upperBound"));
+                    boundaryStatistic.put("lowebBound", getBooleanAttribute(element, "lowebBound"));
+                    pmiStatsType.setBoundaryStatistic(boundaryStatistic);
+                } else if ("RangeStatistic".equals(no.getNodeName())) {
+                    Map<String, Boolean> rangeStatistic = new HashMap<String, Boolean>();
+                    rangeStatistic.put("highWaterMark", getBooleanAttribute(element, "highWaterMark"));
+                    rangeStatistic.put("lowWaterMark", getBooleanAttribute(element, "lowWaterMark"));
+                    rangeStatistic.put("current", getBooleanAttribute(element, "current"));
+                    rangeStatistic.put("integral", getBooleanAttribute(element, "integral"));
+                    pmiStatsType.setRangeStatistic(rangeStatistic);
+                } else if ("TimeStatitic".equals(no.getNodeName())) {
+                    Map<String, Boolean> timeStatitic = new HashMap<String, Boolean>();
+                    timeStatitic.put("count", getBooleanAttribute(element, "count"));
+                    timeStatitic.put("total", getBooleanAttribute(element, "total"));
+                    timeStatitic.put("min", getBooleanAttribute(element, "min"));
+                    timeStatitic.put("max", getBooleanAttribute(element, "max"));
+                    pmiStatsType.setTimeStatitic(timeStatitic);
+                } else if ("BoundedRangeStatistic".equals(no.getNodeName())) {
+                    Map<String, Boolean> boundedRangeStatistic = new HashMap<String, Boolean>();
+                    boundedRangeStatistic.put("upperBound", getBooleanAttribute(element, "upperBound"));
+                    boundedRangeStatistic.put("lowebBound", getBooleanAttribute(element, "lowebBound"));
+                    boundedRangeStatistic.put("highWaterMark", getBooleanAttribute(element, "highWaterMark"));
+                    boundedRangeStatistic.put("lowWaterMark", getBooleanAttribute(element, "lowWaterMark"));
+                    boundedRangeStatistic.put("current", getBooleanAttribute(element, "current"));
+                    boundedRangeStatistic.put("integral", getBooleanAttribute(element, "integral"));
+                    pmiStatsType.setBoundedRangeStatistic(boundedRangeStatistic);
+                }
+            }
+        }
+        return pmiStatsType;
     }
 
     private List<Metric> getMetriGroupMetrics(NodeList nodeList) {
@@ -137,5 +205,21 @@ public class ReadMetricXml {
             }
         }
         return listInstances;
+    }
+
+    private boolean getBooleanAttribute(Element element, String tagName) {
+        String bool = "false";
+        if(getStringAttribute(element, tagName) != null){
+            bool = getStringAttribute(element, tagName);
+        }
+        return Boolean.valueOf(bool);
+    }
+
+    private String getStringAttribute(Element element, String tagName) {
+        return element.getAttribute(tagName);
+    }
+
+    public CellHealthMetrics getCellHealthMetrics() {
+        return cellHealthMetrics;
     }
 }

@@ -1,5 +1,6 @@
 package cellhealth.utils;
 
+import cellhealth.utils.properties.xml.PmiStatsType;
 import com.ibm.websphere.pmi.stat.WSAverageStatistic;
 import com.ibm.websphere.pmi.stat.WSBoundaryStatistic;
 import com.ibm.websphere.pmi.stat.WSBoundedRangeStatistic;
@@ -11,33 +12,49 @@ import com.ibm.websphere.pmi.stat.WSTimeStatistic;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Alberto Pascual on 18/07/15.
  */
 public class UtilsWSStatistic {
 
-    public static List<String> parseStatistics(String prefix, WSStatistic wsStatistic){
+    public static List<String> parseStatistics(String prefix, WSStatistic wsStatistic, PmiStatsType pmiStatsType){
         List<String> result = new LinkedList<String>();
         String type;
+        String separator = getMetricSeparator(pmiStatsType);
         if (wsStatistic != null && wsStatistic.getName() != null) {
             type = Utils.getWSStatisticType(wsStatistic);
             if ("CountStatistic".equals(type)) {
+                Map<String, Boolean> mapCounterStatistic = pmiStatsType.getCountStatistic();
                 WSCountStatistic countStatistic = (WSCountStatistic) wsStatistic;
-                result.add(prefix + "." + wsStatistic.getName() + ".long " + countStatistic.getCount() + " " + System.currentTimeMillis() / 1000L);
+                if(mapCounterStatistic.get("count")){
+                    String separatorType = (pmiStatsType.isUnit())?"_" + countStatistic.getUnit() + " ":" ";
+                    if("N/A".equals(countStatistic.getUnit())) {
+                        separatorType = " ";
+                    }
+                    result.add(prefix + "." + wsStatistic.getName() + separator +"long" + separatorType + countStatistic.getCount() + " " + System.currentTimeMillis() / 1000L);
+                }
             } else if ("DoubleStatistic".equals(type)) {
                 WSDoubleStatistic doubleStatistic = (WSDoubleStatistic) wsStatistic;
-                result.add(prefix + "." + wsStatistic.getName() + ".double " + doubleStatistic.getDouble() + " " + System.currentTimeMillis() / 1000L);
+                Map<String, Boolean> mapDoubleStatistic = pmiStatsType.getCountStatistic();
+                if(mapDoubleStatistic.get("count")) {
+                    String separatorType = (pmiStatsType.isUnit())?"_" + doubleStatistic.getUnit() + " ":" ";
+                    if("N/A".equals(doubleStatistic.getUnit())) {
+                        separatorType = " ";
+                    }
+                    result.add(prefix + "." + wsStatistic.getName() + separator +"double" + separatorType + doubleStatistic.getDouble() + " " + System.currentTimeMillis() / 1000L);
+                }
             } else if ("AverageStatistic".equals(type)) {
-                result.addAll(getAverageStatistic(prefix, wsStatistic));
+                result.addAll(getAverageStatistic(prefix, wsStatistic, pmiStatsType));
             } else if ("TimeStatistic".equals(type)) {
-                result.addAll(getTimeStatistic(prefix, wsStatistic));
+                result.addAll(getTimeStatistic(prefix, wsStatistic, pmiStatsType));
             } else if ("BoundaryStatistic".equals(type)) {
-                result.addAll(getBoundaryStatistic(prefix, wsStatistic));
+                result.addAll(getBoundaryStatistic(prefix, wsStatistic, pmiStatsType));
             } else if ("RangeStatistic".equals(type)) {
-                result.addAll(getRangeStatistic(prefix, wsStatistic));
+                result.addAll(getRangeStatistic(prefix, wsStatistic, pmiStatsType));
             } else if ("BoundedRangeStatistic".equals(type)) {
-                result.addAll(getBoundedRangeStatistic(prefix, wsStatistic));
+                result.addAll(getBoundedRangeStatistic(prefix, wsStatistic, pmiStatsType));
             }
         } else if(wsStatistic != null && wsStatistic.getName() == null){
             //l4j
@@ -45,53 +62,131 @@ public class UtilsWSStatistic {
         return result;
     }
 
-    private static List<String> getAverageStatistic(String prefix, WSStatistic wsStatistic) {
+    private static List<String> getAverageStatistic(String prefix, WSStatistic wsStatistic, PmiStatsType pmiStatsType) {
+        String metricSeparator = getMetricSeparator(pmiStatsType);
+        Map<String, Boolean> mapAverageStatistic = pmiStatsType.getAverageStatistic();
         List<String> result = new LinkedList<String>();
         WSAverageStatistic averageStatistic = (WSAverageStatistic) wsStatistic;
-        result.add(prefix + "." + wsStatistic.getName() + ".count " + averageStatistic.getCount() + " " + System.currentTimeMillis() / 1000L);
-        result.add(prefix + "." + wsStatistic.getName() + ".total " + averageStatistic.getTotal() + " " + System.currentTimeMillis() / 1000L);
-        result.add(prefix + "." + wsStatistic.getName() + ".min " + averageStatistic.getMin() + " " + System.currentTimeMillis() / 1000L);
-        result.add(prefix + "." + wsStatistic.getName() + ".max " + averageStatistic.getMax() + " " + System.currentTimeMillis() / 1000L);
+        String unity = (pmiStatsType.isUnit())?"_" + averageStatistic.getUnit() + " ":" ";
+        if("N/A".equals(averageStatistic.getUnit())) {
+            unity = " ";
+        }
+        if(mapAverageStatistic.get("count")) {
+            result.add(prefix + "." + wsStatistic.getName() + metricSeparator + "count" + unity + averageStatistic.getCount() + " " + System.currentTimeMillis() / 1000L);
+        }
+        if(mapAverageStatistic.get("total")) {
+            result.add(prefix + "." + wsStatistic.getName() + metricSeparator + "total" + unity + averageStatistic.getTotal() + " " + System.currentTimeMillis() / 1000L);
+        }
+        if(mapAverageStatistic.get("min")) {
+            result.add(prefix + "." + wsStatistic.getName() + metricSeparator + "min" + unity + averageStatistic.getMin() + " " + System.currentTimeMillis() / 1000L);
+        }
+        if(mapAverageStatistic.get("max")) {
+            result.add(prefix + "." + wsStatistic.getName() + metricSeparator +"max" + unity + averageStatistic.getMax() + " " + System.currentTimeMillis() / 1000L);
+        }
         return result;
     }
 
-    private static List<String> getTimeStatistic(String prefix, WSStatistic wsStatistic) {
+    private static List<String> getTimeStatistic(String prefix, WSStatistic wsStatistic, PmiStatsType pmiStatsType) {
+        Map<String, Boolean> mapTimeStatistic = pmiStatsType.getTimeStatitic();
+        String metricSeparator = getMetricSeparator(pmiStatsType);
         List<String> result = new LinkedList<String>();
         WSTimeStatistic timeStatistic = (WSTimeStatistic) wsStatistic;
-        result.add(prefix + "." + wsStatistic.getName() + ".count " + timeStatistic.getCount() + " " + System.currentTimeMillis() / 1000L);
-        result.add(prefix + "." + wsStatistic.getName() + ".total " + timeStatistic.getTotal() + " " + System.currentTimeMillis() / 1000L);
-        result.add(prefix + "." + wsStatistic.getName() + ".min " + timeStatistic.getMin() + " " + System.currentTimeMillis() / 1000L);
-        result.add(prefix + "." + wsStatistic.getName() + ".max " + timeStatistic.getMax() + " " + System.currentTimeMillis() / 1000L);
+        String unity = (pmiStatsType.isUnit())?"_" + timeStatistic.getUnit() + " ":" ";
+        if("N/A".equals(timeStatistic.getUnit())) {
+            unity = " ";
+        }
+        if(mapTimeStatistic.get("count")) {
+            result.add(prefix + "." + wsStatistic.getName() + metricSeparator + "count" + unity + timeStatistic.getCount() + " " + System.currentTimeMillis() / 1000L);
+        }
+        if(mapTimeStatistic.get("total")) {
+            result.add(prefix + "." + wsStatistic.getName() + metricSeparator + "total" + unity + timeStatistic.getTotal() + " " + System.currentTimeMillis() / 1000L);
+        }
+        if(mapTimeStatistic.get("min")) {
+            result.add(prefix + "." + wsStatistic.getName() + metricSeparator + "min" + unity + timeStatistic.getMin() + " " + System.currentTimeMillis() / 1000L);
+        }
+        if(mapTimeStatistic.get("max")) {
+            result.add(prefix + "." + wsStatistic.getName() + metricSeparator + "max" + unity + timeStatistic.getMax() + " " + System.currentTimeMillis() / 1000L);
+        }
         return result;
     }
 
-    private static List<String> getBoundaryStatistic(String prefix, WSStatistic wsStatistic){
+    private static List<String> getBoundaryStatistic(String prefix, WSStatistic wsStatistic, PmiStatsType pmiStatsType){
+        Map<String, Boolean> mapBoundaryStatistic = pmiStatsType.getBoundaryStatistic();
+        String metricSeparator = getMetricSeparator(pmiStatsType);
         List<String> result = new LinkedList<String>();
         WSBoundaryStatistic boundaryStatistic = (WSBoundaryStatistic) wsStatistic;
-        result.add(prefix + "." + wsStatistic.getName() + ".upperbound " + boundaryStatistic.getUpperBound() + " " + System.currentTimeMillis() / 1000L);
-        result.add(prefix + "." + wsStatistic.getName() + ".lowerbound " + boundaryStatistic.getLowerBound() + " " + System.currentTimeMillis() / 1000L);
+        String unity = (pmiStatsType.isUnit())?"_" + boundaryStatistic.getUnit() + " ":" ";
+        if("N/A".equals(boundaryStatistic.getUnit())) {
+            unity = " ";
+        }
+        if(mapBoundaryStatistic.get("upperBound")) {
+            result.add(prefix + "." + wsStatistic.getName() + metricSeparator + "upperbound" + unity + boundaryStatistic.getUpperBound() + " " + System.currentTimeMillis() / 1000L);
+        }
+        if(mapBoundaryStatistic.get("lowebBound")) {
+            result.add(prefix + "." + wsStatistic.getName() + metricSeparator + "lowerbound" + unity + boundaryStatistic.getLowerBound() + " " + System.currentTimeMillis() / 1000L);
+        }
         return result;
     }
 
-    private static List<String> getRangeStatistic(String prefix, WSStatistic wsStatistic){
+    private static List<String> getRangeStatistic(String prefix, WSStatistic wsStatistic, PmiStatsType pmiStatsType){
+        Map<String, Boolean> mapRangeStatistic = pmiStatsType.getRangeStatistic();
+        String metricSeparator = getMetricSeparator(pmiStatsType);
         List<String> result = new LinkedList<String>();
         WSRangeStatistic rangeStatistic = (WSRangeStatistic) wsStatistic;
-        result.add(prefix + "." + wsStatistic.getName() + ".highwatermark " + rangeStatistic.getHighWaterMark() + " " + System.currentTimeMillis() / 1000L);
-        result.add(prefix + "." + wsStatistic.getName() + ".lowwatermark " + rangeStatistic.getLowWaterMark() + " " + System.currentTimeMillis() / 1000L);
-        result.add(prefix + "." + wsStatistic.getName() + ".current " + rangeStatistic.getCurrent() + " " + System.currentTimeMillis() / 1000L);
-        result.add(prefix + "." + wsStatistic.getName() + ".integral " + rangeStatistic.getIntegral() + " " + System.currentTimeMillis() / 1000L);
+        String unity = (pmiStatsType.isUnit())?"_" + rangeStatistic.getUnit() + " ":" ";
+        if("N/A".equals(rangeStatistic.getUnit())) {
+            unity = " ";
+        }
+        if(mapRangeStatistic.get("highWaterMark")) {
+            result.add(prefix + "." + wsStatistic.getName() + metricSeparator + "highwatermark" + unity + rangeStatistic.getHighWaterMark() + " " + System.currentTimeMillis() / 1000L);
+        }
+        if(mapRangeStatistic.get("lowWaterMark")) {
+            result.add(prefix + "." + wsStatistic.getName() + metricSeparator + "lowwatermark" + unity + rangeStatistic.getLowWaterMark() + " " + System.currentTimeMillis() / 1000L);
+        }
+        if(mapRangeStatistic.get("current")) {
+            result.add(prefix + "." + wsStatistic.getName() + metricSeparator + "current" + unity + rangeStatistic.getCurrent() + " " + System.currentTimeMillis() / 1000L);
+        }
+        if(mapRangeStatistic.get("integral")) {
+            result.add(prefix + "." + wsStatistic.getName() + metricSeparator + "integral" + unity + rangeStatistic.getIntegral() + " " + System.currentTimeMillis() / 1000L);
+        }
         return result;
     }
 
-    private static List<String> getBoundedRangeStatistic(String prefix, WSStatistic wsStatistic){
+    private static List<String> getBoundedRangeStatistic(String prefix, WSStatistic wsStatistic, PmiStatsType pmiStatsType){
+        Map<String, Boolean> mapBoundedRangeStatistic = pmiStatsType.getBoundedRangeStatistic();
+        String metricSeparator = getMetricSeparator(pmiStatsType);
         List<String> result = new LinkedList<String>();
         WSBoundedRangeStatistic boundedRangeStatistic = (WSBoundedRangeStatistic) wsStatistic;
-        result.add(prefix + "." + wsStatistic.getName() + ".upperbound " + boundedRangeStatistic.getUpperBound() + " " + System.currentTimeMillis() / 1000L);
-        result.add(prefix + "." + wsStatistic.getName() + ".lowerbound " + boundedRangeStatistic.getLowerBound() + " " + System.currentTimeMillis() / 1000L);
-        result.add(prefix + "." + wsStatistic.getName() + ".highwatermark " + boundedRangeStatistic.getHighWaterMark() + " " + System.currentTimeMillis() / 1000L);
-        result.add(prefix + "." + wsStatistic.getName() + ".lowwatermark " + boundedRangeStatistic.getLowWaterMark() + " " + System.currentTimeMillis() / 1000L);
-        result.add(prefix + "." + wsStatistic.getName() + ".current " + boundedRangeStatistic.getCurrent() + " " + System.currentTimeMillis() / 1000L);
-        result.add(prefix + "." + wsStatistic.getName() + ".integral " + boundedRangeStatistic.getIntegral() + " " + System.currentTimeMillis() / 1000L);
+        String unity = (pmiStatsType.isUnit())?"_" + boundedRangeStatistic.getUnit() + " ":" ";
+        if("N/A".equals(boundedRangeStatistic.getUnit())) {
+            unity = " ";
+        }
+        if(mapBoundedRangeStatistic.get("upperBound")) {
+            result.add(prefix + "." + wsStatistic.getName() + metricSeparator + "upperbound" + unity + boundedRangeStatistic.getUpperBound() + " " + System.currentTimeMillis() / 1000L);
+        }
+        if(mapBoundedRangeStatistic.get("lowebBound")) {
+            result.add(prefix + "." + wsStatistic.getName() + metricSeparator + "lowerbound" + unity + boundedRangeStatistic.getLowerBound() + " " + System.currentTimeMillis() / 1000L);
+        }
+        if(mapBoundedRangeStatistic.get("highWaterMark")) {
+            result.add(prefix + "." + wsStatistic.getName() + metricSeparator + "highwatermark" + unity + boundedRangeStatistic.getHighWaterMark() + " " + System.currentTimeMillis() / 1000L);
+        }
+        if(mapBoundedRangeStatistic.get("lowWaterMark")) {
+            result.add(prefix + "." + wsStatistic.getName() + metricSeparator + "lowwatermark" + unity + boundedRangeStatistic.getLowWaterMark() + " " + System.currentTimeMillis() / 1000L);
+        }
+        if(mapBoundedRangeStatistic.get("current")) {
+            result.add(prefix + "." + wsStatistic.getName() + metricSeparator + "current" + unity + boundedRangeStatistic.getCurrent() + " " + System.currentTimeMillis() / 1000L);
+        }
+        if(mapBoundedRangeStatistic.get("integral")) {
+            result.add(prefix + "." + wsStatistic.getName() + metricSeparator + "integral" + unity + boundedRangeStatistic.getIntegral() + " " + System.currentTimeMillis() / 1000L);
+        }
         return result;
+    }
+
+    public static String getMetricSeparator(PmiStatsType pmiStatsType){
+        if(pmiStatsType.isSeparateMetric()){
+            return ".";
+        } else {
+            return "_";
+        }
     }
 }

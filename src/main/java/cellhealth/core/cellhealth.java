@@ -99,7 +99,7 @@ public class cellhealth {
     public static void startCellehealth() {
         L4j.getL4j().info("Starting CellHealth - Normal mode");
         ReadMetricXml readMetricXml = new ReadMetricXml();
-        ThreadManager manager = new ThreadManager(readMetricXml.getMetricGroup());
+        ThreadManager manager = new ThreadManager(readMetricXml.getCellHealthMetrics());
         Thread threadManager = new Thread(manager,"manager");
         threadManager.start();
     }

@@ -1,5 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CellHealthMetrics>
+    <PMIStatsType unit="true" unitseparator="_" separateMetric="false"> <!--unit true -> concatenar el tipo de unidad al nombre de metrica con uniqueseparator _ -->
+        <CountStatistic count="true" />
+        <DoubleStatisc count="true"/>
+        <AverageStatistic count="true" total="false" min="true" max="false"/>
+        <BoundaryStatistic upperBound="true" lowebBound="false" />
+        <RangeStatistic highWaterMark="true" lowWaterMark="false" current="true" integral="false"/>
+        <TimeStatitic count="true" total="false" min="true" max="false"/>
+        <BoundedRangeStatistic upperBound="true" lowebBound="false" highWaterMark="true" lowWaterMark="false" current="true" integral="false"/>
+<!--        #TimeStatitic = AverageStatistic
+        #BoundedRangeStatistic= BoundaryStatisc + RangeStatictic
+        Por defecto sino se especifica nada es = a la suma de configuraciones
+        -->
+    </PMIStatsType>
     <MetricGroup>
         <StatsType>jvmRuntimeModule</StatsType>
         <Prefix>jvm</Prefix>
@@ -23,7 +36,7 @@
         <AllowGlobal>true</AllowGlobal>
         <Prefix>Thrpool</Prefix>
         <UniqueInstance>false</UniqueInstance>
-        <InstanceFilter>SoapConnector,SIBFAPThreadPool</InstanceFilter>
+        <InstanceFilter>SoapConnectorThreadPool,SIBFAPThreadPool</InstanceFilter>
         <Metrics>
             <Metric id="3"> ID NONULL
                 <Name>ActiveCount</Name>
