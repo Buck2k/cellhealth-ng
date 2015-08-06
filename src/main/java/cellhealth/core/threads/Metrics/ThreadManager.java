@@ -10,14 +10,12 @@ import cellhealth.utils.Utils;
 import cellhealth.utils.constants.Constants;
 import cellhealth.utils.logs.L4j;
 import cellhealth.utils.properties.Settings;
-import cellhealth.utils.properties.xml.MetricGroup;
+import cellhealth.utils.properties.xml.CellHealthMetrics;
 import com.ibm.websphere.management.exception.ConnectorException;
 import com.ibm.websphere.management.exception.ConnectorNotAvailableException;
 
-
 import javax.management.ObjectName;
 import java.util.Date;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -28,10 +26,10 @@ public class ThreadManager implements Runnable {
     private WASConnection wasConnection;
     private Sender sender;
     private MBeansManager mbeansManager;
-    private List<MetricGroup> metricGroups;
+    private CellHealthMetrics cellHealthMetrics;
 
-    public ThreadManager(List<MetricGroup> metricGroups) {
-        this.metricGroups = metricGroups;
+    public ThreadManager(CellHealthMetrics cellHealthMetrics) {
+        this.cellHealthMetrics = cellHealthMetrics;
         this.connectToWebSphere();
         this.sender = this.getSender();
     }
@@ -63,7 +61,7 @@ public class ThreadManager implements Runnable {
         for(ObjectName serverRuntime: runtimes){
             String serverName = serverRuntime.getKeyProperty(Constants.NAME);
             String node = serverRuntime.getKeyProperty(Constants.NODE);
-            Capturer capturer = new Capturer(this.mbeansManager, node, serverName, this.metricGroups);
+            Capturer capturer = new Capturer(this.mbeansManager, node, serverName, cellHealthMetrics);
             Runnable worker = new MetricsCollector(capturer, this.sender, chStats);
             executor.execute(worker);
         }
