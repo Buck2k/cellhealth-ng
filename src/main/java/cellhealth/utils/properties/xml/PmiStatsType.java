@@ -1,16 +1,15 @@
 package cellhealth.utils.properties.xml;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-/**
- * Created by Alberto Pascual on 6/08/15.
- */
 public class PmiStatsType {
 
     private boolean unit;
     private String unitSeparator;
     private boolean separateMetric;
+    private Map<String, List<String>> listInternalType;
     private Map<String, Boolean> countStatistic;
     private Map<String, Boolean> doubleStatisc;
     private Map<String, Boolean> averageStatistic;
