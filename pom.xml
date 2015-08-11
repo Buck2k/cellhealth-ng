@@ -1,12 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" encoding="UTF-8"?><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>cellhealth-ng</groupId>
     <artifactId>cellhealth-ng</artifactId>
     <version>0.2</version>
     <properties>
+        <commit.hash>4c7b2f02a</commit.hash>
         <base.path>cellhealth-ng/</base.path>
         <junit.version>4.12</junit.version>
         <assembly.version>2.4</assembly.version>
@@ -84,7 +82,7 @@
                                 <mainClass>cellhealth.core.cellhealth</mainClass>
                             </manifest>
                         </archive>
-                        <finalName>cellhealth-ng.${project.version}</finalName>
+                        <finalName>cellhealth-ng.${project.version}-${commit.hash}</finalName>
                         <appendAssemblyId>false</appendAssemblyId>
                     </configuration>
                     <executions>

@@ -3,10 +3,10 @@
     <PMIStatsType unit="true" unitseparator="_" separateMetric="false">
         <CountStatistic count="true" />
         <DoubleStatisc count="true"/>
-        <AverageStatistic count="true" total="false" min="true" max="false"/>
+        <AverageStatistic count="true" total="false" min="false" max="true"/>
         <BoundaryStatistic upperBound="true" lowebBound="false" />
         <RangeStatistic highWaterMark="true" lowWaterMark="false" current="true" integral="false"/>
-        <TimeStatitic count="true" total="false" min="true" max="false"/>
+        <TimeStatitic count="true" total="false" min="false" max="true"/>
         <BoundedRangeStatistic upperBound="true" lowebBound="false" highWaterMark="true" lowWaterMark="false" current="true" integral="false"/>
     </PMIStatsType>
     <MetricGroup>
