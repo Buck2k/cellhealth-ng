@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CellHealthMetrics>
-    <PMIStatsType unit="true" unitseparator="_" separateMetric="false"> <!--unit true -> concatenar el tipo de unidad al nombre de metrica con uniqueseparator _ -->
+    <PMIStatsType unit="true" unitseparator="_" separateMetric="false">
         <CountStatistic count="true" />
         <DoubleStatisc count="true"/>
         <AverageStatistic count="true" total="false" min="true" max="false"/>
@@ -8,15 +8,12 @@
         <RangeStatistic highWaterMark="true" lowWaterMark="false" current="true" integral="false"/>
         <TimeStatitic count="true" total="false" min="true" max="false"/>
         <BoundedRangeStatistic upperBound="true" lowebBound="false" highWaterMark="true" lowWaterMark="false" current="true" integral="false"/>
-<!--        #TimeStatitic = AverageStatistic
-        #BoundedRangeStatistic= BoundaryStatisc + RangeStatictic
-        Por defecto sino se especifica nada es = a la suma de configuraciones
-        -->
     </PMIStatsType>
     <MetricGroup>
         <StatsType>jvmRuntimeModule</StatsType>
         <Prefix>jvm</Prefix>
         <UniqueInstance>true</UniqueInstance>
+        <AllowGlobal>false</AllowGlobal>
         <Metrics>
             <Metric id="1">
                 <Name>HeapSize</Name>
@@ -33,12 +30,13 @@
     </MetricGroup>
     <MetricGroup>
         <StatsType>threadPoolModule</StatsType>
-        <AllowGlobal>true</AllowGlobal>
-        <Prefix>Thrpool</Prefix>
+        <Prefix>threadPool</Prefix>
         <UniqueInstance>false</UniqueInstance>
-        <InstanceFilter>SoapConnectorThreadPool,SIBFAPThreadPool</InstanceFilter>
+        <AllowGlobal>false</AllowGlobal>
+        <InstanceFilter>WebContainer,MessageListenerThreadPool</InstanceFilter><!--poner webcontainer-->
+        <!--WMQJCAResourceAdapter-->
         <Metrics>
-            <Metric id="3"> ID NONULL
+            <Metric id="3">
                 <Name>ActiveCount</Name>
             </Metric>
             <Metric id="4">
@@ -51,9 +49,9 @@
     </MetricGroup>
     <MetricGroup>
         <StatsType>transactionModule</StatsType>
-        <AllowGlobal>true</AllowGlobal>
         <Prefix>transaction</Prefix>
         <UniqueInstance>false</UniqueInstance>
+        <AllowGlobal>false</AllowGlobal>
         <Metrics>
             <Metric id="4">
                 <Name>ActiveCount</Name>
@@ -62,9 +60,9 @@
     </MetricGroup>
     <MetricGroup>
         <StatsType>connectionPoolModule</StatsType>
-        <AllowGlobal>true</AllowGlobal>
-        <Prefix>conpool</Prefix>
+        <Prefix>connection</Prefix>
         <UniqueInstance>false</UniqueInstance>
+        <AllowGlobal>false</AllowGlobal>
         <Metrics>
             <Metric id="5">
                 <Name>PoolSize</Name>
@@ -79,18 +77,18 @@
     </MetricGroup>
     <MetricGroup>
         <StatsType>j2cModule</StatsType>
-        <AllowGlobal>true</AllowGlobal>
         <Prefix>j2c</Prefix>
         <UniqueInstance>false</UniqueInstance>
+        <AllowGlobal>false</AllowGlobal>
         <Metrics>
             <Metric id="7"/>
         </Metrics>
     </MetricGroup>
     <MetricGroup>
         <StatsType>servletSessionsModule</StatsType>
-        <AllowGlobal>true</AllowGlobal>
-        <Prefix>servlets</Prefix>
+        <Prefix>sessions</Prefix>
         <UniqueInstance>false</UniqueInstance>
+        <AllowGlobal>false</AllowGlobal>
         <Metrics>
             <Metric id="7">
                 <Name>ConcurrentSessions</Name>
@@ -99,10 +97,13 @@
     </MetricGroup>
     <MetricGroup>
         <StatsType>webAppModule</StatsType>
-        <Prefix>webapp</Prefix>
-        <UniqueInstance>true</UniqueInstance>
+        <Prefix>webApp</Prefix>
+        <UniqueInstance>false</UniqueInstance>
+        <AllowGlobal>false</AllowGlobal>
         <Metrics>
-            <Metric id="13"/>
+            <Metric id="13">
+                <Name>ResponseTime</Name>
+            </Metric>
         </Metrics>
     </MetricGroup>
 </CellHealthMetrics>

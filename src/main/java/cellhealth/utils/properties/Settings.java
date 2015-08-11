@@ -28,6 +28,7 @@ public class Settings {
     private String pathSenderConf;
     private String pathLog;
     private String logLevel;
+    private boolean isSelfStats;
 
     private Settings() {
     }
@@ -63,6 +64,7 @@ public class Settings {
             instance.setPathLog(logPath);
             String logLevel = (confProperties.getProperty("ch_output_log_level") == null) ? "INFO" : confProperties.getProperty("ch_output_log_level");
             instance.setLogLevel(logLevel);
+            instance.setSelfStats(Boolean.valueOf(confProperties.getProperty("ch_enable_self_jvm_stats")));
             fileProperties.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -205,5 +207,13 @@ public class Settings {
 
     public void setSoapInterval(long soapInterval) {
         this.soapInterval = soapInterval;
+    }
+
+    public boolean isSelfStats() {
+        return isSelfStats;
+    }
+
+    public void setSelfStats(boolean isSelfStats) {
+        this.isSelfStats = isSelfStats;
     }
 }

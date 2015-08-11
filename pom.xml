@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>cellhealth-ng</groupId>
     <artifactId>cellhealth-ng</artifactId>
-    <version>0.1</version>
+    <version>0.2</version>
     <properties>
         <base.path>cellhealth-ng/</base.path>
         <junit.version>4.12</junit.version>
@@ -74,6 +74,7 @@
                     <artifactId>maven-assembly-plugin</artifactId>
                     <version>${assembly.version}</version>
                     <configuration>
+
                         <outputDirectory>${base.path}/bin/</outputDirectory>
                         <descriptorRefs>
                             <descriptorRef>jar-with-dependencies</descriptorRef>

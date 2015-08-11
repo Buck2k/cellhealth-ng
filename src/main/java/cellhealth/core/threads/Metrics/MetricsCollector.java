@@ -2,6 +2,7 @@ package cellhealth.core.threads.Metrics;
 
 import cellhealth.core.statistics.Capturer;
 import cellhealth.sender.Sender;
+import cellhealth.utils.properties.Settings;
 
 import java.util.List;
 
@@ -27,17 +28,19 @@ public class MetricsCollector implements Runnable {
         if(this.capturer.getPrefix() != null) {
             String[] aux = this.capturer.getPrefix().split("\\.");
             String pathChStats = aux[0] + ".ch_stats";
-            String retrieveTime = pathChStats + ".servers." + aux[1] + ".retrieve_time " + serverIn + " " + System.currentTimeMillis() / 1000L + "\n";
-            String numberMetrics = pathChStats + ".servers." + aux[1] + ".number_metrics " + metrics.size() + " " + System.currentTimeMillis() / 1000L + "\n";
-            if(this.chStats.getPathChStats() == null) {
-                this.chStats.setPathChStats(pathChStats);
+            String retrieveTime = pathChStats + ".metrics." + aux[1] + ".retrieve_time " + serverIn + " " + System.currentTimeMillis() / 1000L + "\n";
+            String numberMetrics = pathChStats + ".metrics." + aux[1] + ".number_metrics " + metrics.size() + " " + System.currentTimeMillis() / 1000L + "\n";
+            if(Settings.propertie().isSelfStats()) {
+                if (this.chStats.getPathChStats() == null) {
+                    this.chStats.setPathChStats(pathChStats);
+                }
+                if (this.chStats.getHost() == null) {
+                    this.chStats.setHost(capturer.getHost());
+                }
+                this.chStats.add(retrieveTime);
+                this.chStats.add(numberMetrics);
+                this.chStats.count(metrics.size());
             }
-            if(this.chStats.getHost() == null) {
-                this.chStats.setHost(capturer.getHost());
-            }
-            this.chStats.add(retrieveTime);
-            this.chStats.add(numberMetrics);
-            this.chStats.count(metrics.size());
         }
     }
 

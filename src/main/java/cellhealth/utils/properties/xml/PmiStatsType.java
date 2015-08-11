@@ -1,15 +1,17 @@
 package cellhealth.utils.properties.xml;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
+/**
+ * Created by Alberto Pascual on 6/08/15.
+ */
 public class PmiStatsType {
 
+    private String metricName;
     private boolean unit;
     private String unitSeparator;
     private boolean separateMetric;
-    private Map<String, List<String>> listInternalType;
     private Map<String, Boolean> countStatistic;
     private Map<String, Boolean> doubleStatisc;
     private Map<String, Boolean> averageStatistic;
@@ -100,5 +102,14 @@ public class PmiStatsType {
 
     public void setSeparateMetric(boolean separateMetric) {
         this.separateMetric = separateMetric;
+    }
+
+
+    public String getMetricName() {
+        return metricName;
+    }
+
+    public void setMetricName(String metricName) {
+        this.metricName = metricName;
     }
 }

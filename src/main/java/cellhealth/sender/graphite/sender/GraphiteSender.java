@@ -69,13 +69,6 @@ public class GraphiteSender implements Sender {
         this.graphiteProperties.setProperty("hostPrefix", "pro.bbdd");
         this.graphiteProperties.setProperty("metricUseHost", "true");
         this.graphiteProperties.setProperty("hostSuffix", "wls");
-        this.graphiteProperties.setProperty("metricDefaultHost", "default_host");
-    }
-
-    public void setDomainName(String domainName) {
-        if(!this.graphiteProperties.containsKey("forceDomainName")) {
-            this.graphiteProperties.setProperty("forceDomainName", domainName);
-        }
     }
 
     public void init(){
@@ -154,7 +147,6 @@ public class GraphiteSender implements Sender {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     public static boolean isShuttingDown() {
