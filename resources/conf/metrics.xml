@@ -26,6 +26,16 @@
             <Metric id="5">
                 <Name>CpuUsage</Name>
             </Metric>
+
+            <Metric id="20" calculated="true">
+                <Name>Yeah</Name>
+
+            </Metric>
+            <Metric calculated="true">
+                <Name>YE</Name>
+                <Expresion>3[upperbound]+5[]</Expresion>
+            </Metric>
+
         </Metrics>
     </MetricGroup>
     <MetricGroup>

@@ -2,9 +2,9 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>cellhealth-ng</groupId>
     <artifactId>cellhealth-ng</artifactId>
-    <version>0.2</version>
+    <version>0.3</version>
     <properties>
-        <commit.hash>4c7b2f02a</commit.hash>
+        <commit.hash>a0741f145</commit.hash>
         <base.path>cellhealth-ng/</base.path>
         <junit.version>4.12</junit.version>
         <assembly.version>2.4</assembly.version>

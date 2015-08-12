@@ -1,6 +1,7 @@
 package cellhealth.core.threads.Metrics;
 
 import cellhealth.core.statistics.Capturer;
+import cellhealth.core.statistics.Stats;
 import cellhealth.sender.Sender;
 import cellhealth.utils.properties.Settings;
 
@@ -22,7 +23,7 @@ public class MetricsCollector implements Runnable {
 
     public void run() {
         long start_time=System.currentTimeMillis();
-        List<String> metrics = this.capturer.getMetrics();
+        List<Stats> metrics = this.capturer.getMetrics();
         long serverIn = (System.currentTimeMillis() - start_time);
         this.sendAllMetricRange(metrics);
         if(this.capturer.getPrefix() != null) {
@@ -44,12 +45,11 @@ public class MetricsCollector implements Runnable {
         }
     }
 
-    private void sendAllMetricRange(List<String> metrics) {
+    private void sendAllMetricRange(List<Stats> metrics) {
         if(metrics != null) {
-            for (String metric : metrics) {
-                sender.send(capturer.getHost(), metric);
+            for (Stats stats : metrics) {
+                sender.send(stats.getHost(), stats.getMetric());
             }
         }
     }
-
 }
