@@ -2,7 +2,6 @@ package cellhealth.core.statistics;
 
 import cellhealth.core.connection.MBeansManager;
 import cellhealth.utils.Utils;
-import cellhealth.utils.UtilsWSStatistic;
 import cellhealth.utils.logs.L4j;
 import cellhealth.utils.properties.xml.CellHealthMetrics;
 import cellhealth.utils.properties.xml.Metric;
@@ -86,14 +85,13 @@ public class Capturer {
         List<Stats> result = new LinkedList<Stats>();
         List<Stats> globalStats;
         List<Stats> instances;
-        this.prefix = this.serverPerfMBean.getKeyProperty("cell") + "." + this.serverPerfMBean.getKeyProperty("process");
-        String path = this.serverPerfMBean.getKeyProperty("cell") + "." + this.serverPerfMBean.getKeyProperty("process") + "." + metricGroup.getPrefix();
-        globalStats = getGlobalStats(wsStats, metricGroup, path);
+        this.prefix = this.serverPerfMBean.getKeyProperty("cell") + "." + this.serverPerfMBean.getKeyProperty("process") + "." + metricGroup.getPrefix();
+        globalStats = getGlobalStats(wsStats, metricGroup, this.prefix);
         if(globalStats.size() > 0) {
             result.addAll(globalStats);
         }
         if(wsStats.getSubStats().length > 0){
-            instances = getInstances(Arrays.asList(wsStats.getSubStats()), metricGroup, path, isInstance);
+            instances = getInstances(Arrays.asList(wsStats.getSubStats()), metricGroup, this.prefix, isInstance);
             if(instances.size() > 0){
                 result.addAll(instances);
             }
@@ -104,57 +102,54 @@ public class Capturer {
 
     public synchronized List<Stats> getInstances(List<WSStats> wsStats, MetricGroup metricGroup, String path, boolean isInstance) {
         List<Stats> result = new LinkedList<Stats>();
-        //System.out.println(metricGroup.getPrefix() threadPool);
-        if("threadPool".equals(metricGroup.getPrefix())){
-            System.out.println("METRICPREFIX: " + metricGroup.getPrefix());
-            System.out.println("PATH: " + path);
-        }
         for(WSStats substats: wsStats){
+            String auxPath = path + "." + Utils.getParseBeanName(substats.getName());
             if(isInstance) {
                 if(metricGroup.getInstanceFilter() != null && metricGroup.getInstanceFilter().size() > 0 && metricGroup.getInstanceFilter().contains(substats.getName())) {
-                    String auxPath = path + "." + Utils.getParseBeanName(substats.getName());
                     if(metricGroup.getAllowGlobal() && substats.getSubStats().length > 0){
                         for(Metric metric: metricGroup.getMetrics()){
                             WSStatistic wsStatistic = substats.getStatistic(metric.getId());
-                            this.pmiStatsType.setMetricName(metric.getName());
-                            result.addAll(UtilsWSStatistic.parseStatistics(auxPath + ".global", wsStatistic, this.pmiStatsType, Utils.getHostByNode(this.node)));
+                            String metricName = (metric.getName() == null || metric.getName().length() == 0)?wsStatistic.getName():metric.getName();
+                            ParserWSStatistics parserWSStatistics = new ParserWSStatistics(wsStatistic, this.pmiStatsType, Utils.getHostByNode(this.node), auxPath, metricName);
+                            result.addAll(parserWSStatistics.parseStatistics());
                         }
                     } else if(substats.getSubStats().length == 0) {
                         for (Metric metric : metricGroup.getMetrics()) {
                             WSStatistic wsStatistic = substats.getStatistic(metric.getId());
-                            this.pmiStatsType.setMetricName(metric.getName());
-                            result.addAll(UtilsWSStatistic.parseStatistics(auxPath, wsStatistic, this.pmiStatsType, Utils.getHostByNode(this.node)));
+                            String metricName = (metric.getName() == null || metric.getName().length() == 0)?wsStatistic.getName():metric.getName();
+                            ParserWSStatistics parserWSStatistics = new ParserWSStatistics(wsStatistic, this.pmiStatsType, Utils.getHostByNode(this.node), auxPath, metricName);
+                            result.addAll(parserWSStatistics.parseStatistics());
                         }
                     }
                     if(substats.getSubStats().length > 0){
                         result.addAll(getInstances(Arrays.asList(substats.getSubStats()), metricGroup, auxPath,false));
                     }
                 } else if(metricGroup.getInstanceFilter() == null || metricGroup.getInstanceFilter().size() == 0) {
-                    String auxPath = path + "." + Utils.getParseBeanName(substats.getName());
-                    String subStats = auxPath;
                     if(metricGroup.getAllowGlobal() && substats.getSubStats().length > 0){
                         for(Metric metric: metricGroup.getMetrics()){
                             WSStatistic wsStatistic = substats.getStatistic(metric.getId());
-                            this.pmiStatsType.setMetricName(metric.getName());
-                            result.addAll(UtilsWSStatistic.parseStatistics(auxPath + ".global", wsStatistic, this.pmiStatsType, Utils.getHostByNode(this.node)));
+                            String metricName = (metric.getName() == null || metric.getName().length() == 0)?wsStatistic.getName():metric.getName();
+                            ParserWSStatistics parserWSStatistics = new ParserWSStatistics(wsStatistic, this.pmiStatsType, Utils.getHostByNode(this.node), auxPath, metricName);
+                            result.addAll(parserWSStatistics.parseStatistics());
                         }
                     } else if(substats.getSubStats().length == 0) {
                         for (Metric metric : metricGroup.getMetrics()) {
                             WSStatistic wsStatistic = substats.getStatistic(metric.getId());
-                            this.pmiStatsType.setMetricName(metric.getName());
-                            result.addAll(UtilsWSStatistic.parseStatistics(auxPath, wsStatistic, this.pmiStatsType, Utils.getHostByNode(this.node)));
+                            String metricName = (metric.getName() == null || metric.getName().length() == 0)?wsStatistic.getName():metric.getName();
+                            ParserWSStatistics parserWSStatistics = new ParserWSStatistics(wsStatistic, this.pmiStatsType, Utils.getHostByNode(this.node), auxPath, metricName);
+                            result.addAll(parserWSStatistics.parseStatistics());
                         }
                     }
                     if(substats.getSubStats().length > 0){
-                        result.addAll(getInstances(Arrays.asList(substats.getSubStats()), metricGroup, subStats,false));
+                        result.addAll(getInstances(Arrays.asList(substats.getSubStats()), metricGroup, auxPath,false));
                     }
                 }
             } else {
-                String auxPath = path + "." + Utils.getParseBeanName(substats.getName());
                 for (Metric metric : metricGroup.getMetrics())  {
                     WSStatistic wsStatistic = substats.getStatistic(metric.getId());
-                    this.pmiStatsType.setMetricName(metric.getName());
-                    result.addAll(UtilsWSStatistic.parseStatistics(auxPath, wsStatistic, this.pmiStatsType, Utils.getHostByNode(this.node)));
+                    String metricName = (metric.getName() == null || metric.getName().length() == 0)?wsStatistic.getName():metric.getName();
+                    ParserWSStatistics parserWSStatistics = new ParserWSStatistics(wsStatistic, this.pmiStatsType, Utils.getHostByNode(this.node), auxPath, metricName);
+                    result.addAll(parserWSStatistics.parseStatistics());
                 }
                 if (substats.getSubStats().length > 0) {
                     result.addAll(getInstances(Arrays.asList(substats.getSubStats()), metricGroup, auxPath, false));
@@ -168,17 +163,18 @@ public class Capturer {
     public List<Stats> getGlobalStats(WSStats wsStats, MetricGroup metricGroup, String path) {
         List<Stats> result = new LinkedList<Stats>();
         if(metricGroup.getAllowGlobal()){
-            String prefixGlobal = path + ".global";
             for (Metric metric : metricGroup.getMetrics()) {
                 WSStatistic wsStatistic = wsStats.getStatistic(metric.getId());
-                this.pmiStatsType.setMetricName(metric.getName());
-                result.addAll(UtilsWSStatistic.parseStatistics(prefixGlobal, wsStatistic, this.pmiStatsType, Utils.getHostByNode(this.node)));
+                String metricName = (metric.getName() == null || metric.getName().length() == 0)?wsStatistic.getName():metric.getName();
+                ParserWSStatistics parserWSStatistics = new ParserWSStatistics(wsStatistic, this.pmiStatsType, Utils.getHostByNode(this.node), path + ".global", metricName);
+                result.addAll(parserWSStatistics.parseStatistics());
             }
         } else if(wsStats.getSubStats().length == 0) {
             for (Metric metric : metricGroup.getMetrics()) {
                 WSStatistic wsStatistic = wsStats.getStatistic(metric.getId());
-                this.pmiStatsType.setMetricName(metric.getName());
-                result.addAll(UtilsWSStatistic.parseStatistics(path, wsStatistic, this.pmiStatsType, Utils.getHostByNode(this.node)));
+                String metricName = (metric.getName() == null || metric.getName().length() == 0)?wsStatistic.getName():metric.getName();
+                ParserWSStatistics parserWSStatistics = new ParserWSStatistics(wsStatistic, this.pmiStatsType, Utils.getHostByNode(this.node), path, metricName);
+                result.addAll(parserWSStatistics.parseStatistics());
             }
         }
         return result;

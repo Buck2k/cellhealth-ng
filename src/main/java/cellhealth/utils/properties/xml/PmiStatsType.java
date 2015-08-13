@@ -8,7 +8,6 @@ import java.util.Map;
  */
 public class PmiStatsType {
 
-    private String metricName;
     private boolean unit;
     private String unitSeparator;
     private boolean separateMetric;
@@ -104,12 +103,4 @@ public class PmiStatsType {
         this.separateMetric = separateMetric;
     }
 
-
-    public String getMetricName() {
-        return metricName;
-    }
-
-    public void setMetricName(String metricName) {
-        this.metricName = metricName;
-    }
 }

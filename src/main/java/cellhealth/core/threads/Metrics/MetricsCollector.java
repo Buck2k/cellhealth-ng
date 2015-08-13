@@ -26,12 +26,12 @@ public class MetricsCollector implements Runnable {
         List<Stats> metrics = this.capturer.getMetrics();
         long serverIn = (System.currentTimeMillis() - start_time);
         this.sendAllMetricRange(metrics);
-        if(this.capturer.getPrefix() != null) {
+        if(this.capturer.getPrefix() != null && Settings.propertie().isSelfStats()) {
             String[] aux = this.capturer.getPrefix().split("\\.");
             String pathChStats = aux[0] + ".ch_stats";
             String retrieveTime = pathChStats + ".metrics." + aux[1] + ".retrieve_time " + serverIn + " " + System.currentTimeMillis() / 1000L + "\n";
             String numberMetrics = pathChStats + ".metrics." + aux[1] + ".number_metrics " + metrics.size() + " " + System.currentTimeMillis() / 1000L + "\n";
-            if(Settings.propertie().isSelfStats()) {
+
                 if (this.chStats.getPathChStats() == null) {
                     this.chStats.setPathChStats(pathChStats);
                 }
@@ -41,7 +41,6 @@ public class MetricsCollector implements Runnable {
                 this.chStats.add(retrieveTime);
                 this.chStats.add(numberMetrics);
                 this.chStats.count(metrics.size());
-            }
         }
     }
 
