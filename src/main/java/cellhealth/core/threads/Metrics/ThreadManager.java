@@ -44,7 +44,10 @@ public class ThreadManager implements Runnable {
         boolean start = true;
         while(start){
             try {
+                //long start_time=System.currentTimeMillis();
                 this.launchThreads();
+                //long elapsed = (System.currentTimeMillis() - start_time);
+                //Thread.sleep(Settings.propertie().getThreadInterval()-elapsed);
                 Thread.sleep(Settings.propertie().getThreadInterval());
             } catch (InterruptedException e) {
                 start = false;
