@@ -1,8 +1,9 @@
-package cellhealth.core.statistics;
+package cellhealth.core.statistics.parser;
 
+import cellhealth.core.statistics.Stats;
 import cellhealth.utils.properties.xml.PmiStatsType;
-import com.ibm.websphere.pmi.stat.WSRangeStatistic;
 import com.ibm.websphere.pmi.stat.WSStatistic;
+import com.ibm.websphere.pmi.stat.WSTimeStatistic;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -11,7 +12,8 @@ import java.util.Map;
 /**
  * Created by Alberto Pascual on 13/08/15.
  */
-public class ParserRangeStatistic <E extends WSRangeStatistic> extends AbstractParser<E>{
+public class ParserTimeStatistic<E extends WSTimeStatistic> extends AbstractParser<E>{
+
 
     private String metricName;
     private E parserStatistic;
@@ -21,16 +23,14 @@ public class ParserRangeStatistic <E extends WSRangeStatistic> extends AbstractP
     private String prefix;
     private String unity;
 
-    public ParserRangeStatistic(PmiStatsType pmiStatsType, WSStatistic wsStatistic, String node, String prefix, String metricName) {
+    public ParserTimeStatistic(PmiStatsType pmiStatsType, WSStatistic wsStatistic, String node, String prefix, String metricName) {
         this.metricName = metricName;
         this.metricSeparator = getMetricSeparator(pmiStatsType);
         this.parserStatistic =  (E) wsStatistic;
         this.unity = this.getUnity(pmiStatsType, this.parserStatistic);
-        this.mapPmiStatsType = pmiStatsType.getRangeStatistic();
+        this.mapPmiStatsType = pmiStatsType.getTimeStatitic();
         this.prefix = prefix;
         this.node = node;
-
-        System.out.println(wsStatistic.getName() + " " + metricName);
     }
 
     public List<Stats> getStatistic() {
@@ -41,14 +41,14 @@ public class ParserRangeStatistic <E extends WSRangeStatistic> extends AbstractP
                 Stats stats = new Stats();
                 stats.setHost(this.node);
                 String metric = "";
-                if("highWaterMark".equals(method)){
-                    metric = String.valueOf(this.parserStatistic.getHighWaterMark());
-                } else if("lowWaterMark".equals(method)) {
-                    metric = String.valueOf(this.parserStatistic.getLowWaterMark());
-                } else if("current".equals(method)) {
-                    metric = String.valueOf(this.parserStatistic.getCurrent());
-                } else if("integral".equals(method)) {
-                    metric = String.valueOf(this.parserStatistic.getIntegral());
+                if("count".equals(method)){
+                    metric = String.valueOf(this.parserStatistic.getCount());
+                } else if("total".equals(method)) {
+                    metric = String.valueOf(this.parserStatistic.getTotal());
+                } else if("min".equals(method)) {
+                    metric = String.valueOf(this.parserStatistic.getMin());
+                } else if("max".equals(method)){
+                    metric = String.valueOf(this.parserStatistic.getMax());
                 }
                 stats.setMetric(this.prefix + "." + this.metricName + this.metricSeparator + method + this.unity + metric + " " + System.currentTimeMillis() / 1000L);
                 result.add(stats);

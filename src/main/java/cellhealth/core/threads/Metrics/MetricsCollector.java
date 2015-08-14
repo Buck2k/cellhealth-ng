@@ -1,21 +1,22 @@
 package cellhealth.core.threads.Metrics;
 
 import cellhealth.core.statistics.Capturer;
-import cellhealth.core.statistics.Stats;
+import cellhealth.core.statistics.chStats.Stats;
 import cellhealth.sender.Sender;
 import cellhealth.utils.properties.Settings;
 
 import java.util.List;
+import java.util.Map;
 
 
 public class MetricsCollector implements Runnable {
 
     private final Capturer capturer;
     private final Sender sender;
-    private final CHStats chStats;
+    private final Stats chStats;
 
 
-    public MetricsCollector(Capturer capturer, Sender sender, CHStats chStats) {
+    public MetricsCollector(Capturer capturer, Sender sender, Stats chStats) {
         this.capturer = capturer;
         this.sender = sender;
         this.chStats = chStats;
@@ -23,30 +24,27 @@ public class MetricsCollector implements Runnable {
 
     public void run() {
         long start_time=System.currentTimeMillis();
-        List<Stats> metrics = this.capturer.getMetrics();
+        List<cellhealth.core.statistics.Stats> metrics = this.capturer.getMetrics();
         long serverIn = (System.currentTimeMillis() - start_time);
         this.sendAllMetricRange(metrics);
         if(this.capturer.getPrefix() != null && Settings.propertie().isSelfStats()) {
+            Map<String,String> chStatsPath = this.capturer.getMbeansManager().getPathHostChStats();
             String[] aux = this.capturer.getPrefix().split("\\.");
-            String pathChStats = aux[0] + ".ch_stats";
-            String retrieveTime = pathChStats + ".metrics." + aux[1] + ".retrieve_time " + serverIn + " " + System.currentTimeMillis() / 1000L + "\n";
-            String numberMetrics = pathChStats + ".metrics." + aux[1] + ".number_metrics " + metrics.size() + " " + System.currentTimeMillis() / 1000L + "\n";
-
-                if (this.chStats.getPathChStats() == null) {
-                    this.chStats.setPathChStats(pathChStats);
-                }
-                if (this.chStats.getHost() == null) {
-                    this.chStats.setHost(capturer.getHost());
-                }
-                this.chStats.add(retrieveTime);
-                this.chStats.add(numberMetrics);
-                this.chStats.count(metrics.size());
+            if (this.chStats.getPathChStats() == null) {
+                this.chStats.setPathChStats(chStatsPath.get("path"));
+            }
+            if (this.chStats.getHost() == null) {
+                this.chStats.setHost(chStatsPath.get("host"));
+            }
+            this.chStats.add(".metrics." + aux[1] + ".retrieve_time", String.valueOf(serverIn));
+            this.chStats.add(".metrics." + aux[1] + ".number_metrics", String.valueOf(metrics.size()));
+            this.chStats.count(metrics.size());
         }
     }
 
-    private void sendAllMetricRange(List<Stats> metrics) {
+    private void sendAllMetricRange(List<cellhealth.core.statistics.Stats> metrics) {
         if(metrics != null) {
-            for (Stats stats : metrics) {
+            for (cellhealth.core.statistics.Stats stats : metrics) {
                 sender.send(stats.getHost(), stats.getMetric());
             }
         }

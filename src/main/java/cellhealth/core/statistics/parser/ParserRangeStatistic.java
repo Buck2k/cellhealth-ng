@@ -1,7 +1,8 @@
-package cellhealth.core.statistics;
+package cellhealth.core.statistics.parser;
 
+import cellhealth.core.statistics.Stats;
 import cellhealth.utils.properties.xml.PmiStatsType;
-import com.ibm.websphere.pmi.stat.WSBoundaryStatistic;
+import com.ibm.websphere.pmi.stat.WSRangeStatistic;
 import com.ibm.websphere.pmi.stat.WSStatistic;
 
 import java.util.LinkedList;
@@ -11,7 +12,7 @@ import java.util.Map;
 /**
  * Created by Alberto Pascual on 13/08/15.
  */
-public class ParserBoundaryStatistic<E extends WSBoundaryStatistic> extends AbstractParser<E>{
+public class ParserRangeStatistic <E extends WSRangeStatistic> extends AbstractParser<E>{
 
     private String metricName;
     private E parserStatistic;
@@ -21,16 +22,14 @@ public class ParserBoundaryStatistic<E extends WSBoundaryStatistic> extends Abst
     private String prefix;
     private String unity;
 
-    public ParserBoundaryStatistic(PmiStatsType pmiStatsType, WSStatistic wsStatistic, String node, String prefix, String metricName) {
+    public ParserRangeStatistic(PmiStatsType pmiStatsType, WSStatistic wsStatistic, String node, String prefix, String metricName) {
         this.metricName = metricName;
         this.metricSeparator = getMetricSeparator(pmiStatsType);
         this.parserStatistic =  (E) wsStatistic;
         this.unity = this.getUnity(pmiStatsType, this.parserStatistic);
-        this.mapPmiStatsType = pmiStatsType.getBoundaryStatistic();
+        this.mapPmiStatsType = pmiStatsType.getRangeStatistic();
         this.prefix = prefix;
         this.node = node;
-
-        System.out.println(wsStatistic.getName() + " " + metricName);
     }
 
     public List<Stats> getStatistic() {
@@ -41,10 +40,14 @@ public class ParserBoundaryStatistic<E extends WSBoundaryStatistic> extends Abst
                 Stats stats = new Stats();
                 stats.setHost(this.node);
                 String metric = "";
-                if("upperBound".equals(method)){
-                    metric = String.valueOf(this.parserStatistic.getUpperBound());
-                } else if("lowerbound".equals(method)) {
-                    metric = String.valueOf(this.parserStatistic.getLowerBound());
+                if("highWaterMark".equals(method)){
+                    metric = String.valueOf(this.parserStatistic.getHighWaterMark());
+                } else if("lowWaterMark".equals(method)) {
+                    metric = String.valueOf(this.parserStatistic.getLowWaterMark());
+                } else if("current".equals(method)) {
+                    metric = String.valueOf(this.parserStatistic.getCurrent());
+                } else if("integral".equals(method)) {
+                    metric = String.valueOf(this.parserStatistic.getIntegral());
                 }
                 stats.setMetric(this.prefix + "." + this.metricName + this.metricSeparator + method + this.unity + metric + " " + System.currentTimeMillis() / 1000L);
                 result.add(stats);

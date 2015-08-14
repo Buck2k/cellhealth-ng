@@ -1,6 +1,7 @@
 package cellhealth.core.statistics;
 
 import cellhealth.core.connection.MBeansManager;
+import cellhealth.core.statistics.parser.ParserWSStatistics;
 import cellhealth.utils.Utils;
 import cellhealth.utils.logs.L4j;
 import cellhealth.utils.properties.xml.CellHealthMetrics;
@@ -188,4 +189,7 @@ public class Capturer {
         return this.prefix;
     }
 
+    public MBeansManager getMbeansManager() {
+        return mbeansManager;
+    }
 }

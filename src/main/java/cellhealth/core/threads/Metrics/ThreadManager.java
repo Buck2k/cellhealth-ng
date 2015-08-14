@@ -4,6 +4,7 @@ import cellhealth.core.connection.MBeansManager;
 import cellhealth.core.connection.WASConnection;
 import cellhealth.core.connection.WASConnectionSOAP;
 import cellhealth.core.statistics.Capturer;
+import cellhealth.core.statistics.chStats.Stats;
 import cellhealth.sender.Sender;
 import cellhealth.sender.graphite.sender.GraphiteSender;
 import cellhealth.utils.Utils;
@@ -15,13 +16,6 @@ import com.ibm.websphere.management.exception.ConnectorException;
 import com.ibm.websphere.management.exception.ConnectorNotAvailableException;
 
 import javax.management.ObjectName;
-import java.lang.management.ClassLoadingMXBean;
-import java.lang.management.CompilationMXBean;
-import java.lang.management.GarbageCollectorMXBean;
-import java.lang.management.ManagementFactory;
-import java.lang.management.MemoryMXBean;
-import java.lang.management.MemoryPoolMXBean;
-import java.lang.management.ThreadMXBean;
 import java.util.Date;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -64,7 +58,7 @@ public class ThreadManager implements Runnable {
         Date timeCountStart = new Date();
         ExecutorService executor = Executors.newFixedThreadPool(runtimes.size());
         checkConnections();
-        CHStats chStats = new CHStats();
+        Stats chStats = new Stats();
         for(ObjectName serverRuntime: runtimes){
             String serverName = serverRuntime.getKeyProperty(Constants.NAME);
             String node = serverRuntime.getKeyProperty(Constants.NODE);
@@ -83,43 +77,7 @@ public class ThreadManager implements Runnable {
             Long elapsed =  new Date().getTime() - timeCountStart.getTime();
             if(executor.isTerminated()){
                 if(Settings.propertie().isSelfStats()) {
-                    Runtime runtime = Runtime.getRuntime();
-                    String retrieveTime = chStats.getPathChStats() + ".metrics.global.retrieve_time " + elapsed + " " + System.currentTimeMillis() / 1000L + "\n";
-                    String numberMetrics = chStats.getPathChStats() + ".metrics.global.number_metrics " + chStats.getMetrics() + " " + System.currentTimeMillis() / 1000L + "\n";
-                    String jvmFreeMemory = chStats.getPathChStats() + ".os.freememory " + runtime.freeMemory() + " " + System.currentTimeMillis() / 1000L + "\n";
-                    String jvmMaxMemory = chStats.getPathChStats() + ".os.maxmemory " + runtime.maxMemory() + " " + System.currentTimeMillis() / 1000L + "\n";
-                    String jvmTotalMemory = chStats.getPathChStats() + ".os.totalmemory " + runtime.totalMemory() + " " + System.currentTimeMillis() / 1000L + "\n";
-                    String availableProcessors = chStats.getPathChStats() + ".os.availableprocessors " + runtime.availableProcessors() + " " + System.currentTimeMillis() / 1000L + "\n";
-                    for(GarbageCollectorMXBean garbageCollectorMXBean:ManagementFactory.getGarbageCollectorMXBeans()){
-                        String name = garbageCollectorMXBean.getName().replace(" ", "_");
-                        chStats.add(chStats.getPathChStats() + ".jvm.gc." + name + ".gc_collection_count " + garbageCollectorMXBean.getCollectionCount() + " " + System.currentTimeMillis() / 1000L + "\n");
-                        chStats.add(chStats.getPathChStats() + ".jvm.gc." + name + ".gc_collection_time " + garbageCollectorMXBean.getCollectionTime() + " " + System.currentTimeMillis() / 1000L + "\n");
-                    }
-                    MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
-                    chStats.add(chStats.getPathChStats() + ".jvm.memory.heapUsage_init " + memoryMXBean.getHeapMemoryUsage().getInit() + " " + System.currentTimeMillis() / 1000L + "\n");
-                    chStats.add(chStats.getPathChStats() + ".jvm.memory.heapUsage_used " + memoryMXBean.getHeapMemoryUsage().getUsed() + " " + System.currentTimeMillis() / 1000L + "\n");
-                    chStats.add(chStats.getPathChStats() + ".jvm.memory.heapUsage_committed " + memoryMXBean.getHeapMemoryUsage().getCommitted() + " " + System.currentTimeMillis() / 1000L + "\n");
-                    chStats.add(chStats.getPathChStats() + ".jvm.memory.heapUsage_max " + memoryMXBean.getHeapMemoryUsage().getMax() + " " + System.currentTimeMillis() / 1000L + "\n");
-                    CompilationMXBean compilationMXBean = ManagementFactory.getCompilationMXBean();
-                    chStats.add(chStats.getPathChStats() + ".jvm.compiler.total_compilation_time " + compilationMXBean.getTotalCompilationTime() + " " + System.currentTimeMillis() / 1000L + "\n");
-                    ClassLoadingMXBean classLoadingMXBean = ManagementFactory.getClassLoadingMXBean();
-                    chStats.add(chStats.getPathChStats() + ".jvm.classloading.class_count " + classLoadingMXBean.getLoadedClassCount() + " " + System.currentTimeMillis() / 1000L + "\n");
-                    for(MemoryPoolMXBean memoryPoolMXBean:ManagementFactory.getMemoryPoolMXBeans()){
-                        String name = memoryPoolMXBean.getName().replace(" ", "_");
-                        chStats.add(chStats.getPathChStats() + ".jvm.memoryPool." + name + ".init " + memoryPoolMXBean.getUsage().getInit() + " " + System.currentTimeMillis() / 1000L + "\n");
-                        chStats.add(chStats.getPathChStats() + ".jvm.memoryPool." + name + ".used " + memoryPoolMXBean.getUsage().getUsed() + " " + System.currentTimeMillis() / 1000L + "\n");
-                        chStats.add(chStats.getPathChStats() + ".jvm.memoryPool." + name + ".committed " + memoryPoolMXBean.getUsage().getCommitted() + " " + System.currentTimeMillis() / 1000L + "\n");
-                        chStats.add(chStats.getPathChStats() + ".jvm.memoryPool." + name + ".max " + memoryPoolMXBean.getUsage().getMax() + " " + System.currentTimeMillis() / 1000L + "\n");
-                    }
-                    ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
-                    chStats.add(chStats.getPathChStats() + ".jvm.threads.daemon " + threadMXBean.getDaemonThreadCount() + " " + System.currentTimeMillis() / 1000L + "\n");
-                    chStats.add(chStats.getPathChStats() + ".jvm.threads.thread_count " + threadMXBean.getThreadCount() + " " + System.currentTimeMillis() / 1000L + "\n");
-                    chStats.add(retrieveTime);
-                    chStats.add(numberMetrics);
-                    chStats.add(jvmFreeMemory);
-                    chStats.add(jvmMaxMemory);
-                    chStats.add(jvmTotalMemory);
-                    chStats.add(availableProcessors);
+                    chStats.getSelfStats(String.valueOf(elapsed));
                     if (chStats.getStats() != null) {
                         for (String metric : chStats.getStats()) {
                             sender.send(chStats.getHost(), metric);

@@ -1,5 +1,6 @@
 package cellhealth.core.connection;
 
+import cellhealth.utils.Utils;
 import cellhealth.utils.constants.Constants;
 import cellhealth.utils.constants.message.Error;
 import cellhealth.utils.logs.L4j;
@@ -9,7 +10,9 @@ import com.ibm.websphere.management.exception.ConnectorNotAvailableException;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -100,5 +103,33 @@ public class MBeansManager {
     public String getNodeServerMBean(){
         ObjectName objectName = getMBean("WebSphere:processType=ManagedProcess,*");
         return objectName.getKeyProperty("node");
+    }
+
+    public Map<String,String> getPathHostChStats(){
+        Map<String,String> pathChstats = new HashMap<String, String>();
+        ObjectName dmgr = this.getMBean("WebSphere:processType=DeploymentManager,*");
+        String cell = dmgr.getKeyProperty("cell");
+        if(cell != null) {
+            String query = "WebSphere:processType=ManagedProcess,cell=" + cell + ",*";
+            String chStatsNode = "";
+            String chStatsHost = "";
+            String chStatsCell = "";
+            String path = "";
+            String host = "";
+            for (ObjectName objectName : this.getMBeans(query)) {
+                chStatsNode = objectName.getKeyProperty("node");
+                chStatsHost = Utils.getHostByNode(chStatsNode);
+                chStatsCell = objectName.getKeyProperty("cell");
+                if (path == null || path.length() == 0) {
+                    if ((chStatsNode != null && chStatsNode.length() > 0) && (chStatsHost != null && chStatsHost.length() > 0) && (chStatsCell != null && chStatsCell.length() > 0)) {
+                        path = chStatsCell + ".ch_stats";
+                        host = chStatsHost;
+                        pathChstats.put("path", path);
+                        pathChstats.put("host", host);
+                    }
+                }
+            }
+        }
+        return pathChstats;
     }
 }

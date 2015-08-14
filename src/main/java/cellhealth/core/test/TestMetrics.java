@@ -2,10 +2,20 @@ package cellhealth.core.test;
 
 import cellhealth.core.connection.MBeansManager;
 import cellhealth.core.connection.WASConnection;
-import cellhealth.utils.properties.Settings;
+import cellhealth.utils.Utils;
 
 import javax.management.MBeanServer;
-import java.lang.management.*;
+import javax.management.ObjectName;
+import java.lang.management.ClassLoadingMXBean;
+import java.lang.management.CompilationMXBean;
+import java.lang.management.GarbageCollectorMXBean;
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryMXBean;
+import java.lang.management.MemoryManagerMXBean;
+import java.lang.management.MemoryPoolMXBean;
+import java.lang.management.OperatingSystemMXBean;
+import java.lang.management.RuntimeMXBean;
+import java.lang.management.ThreadMXBean;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -28,7 +38,34 @@ public class TestMetrics {
     public static final String SEPARATOR = "" + SEPARATOR_CHAR;
     protected static final long BYTES_IN_MEGABYTE = 1024 * 1024;
 
-    public void test() {
+    public void test(){
+
+        ObjectName dmgr = this.mbeansManager.getMBean("WebSphere:processType=DeploymentManager,*");
+        String cell = dmgr.getKeyProperty("cell");
+        if(cell != null) {
+            String query = "WebSphere:processType=ManagedProcess,cell=" + cell + ",*";
+            String chStatsNode = "";
+            String chStatsHost = "";
+            String chStatsCell = "";
+            String path = "";
+            String host = "";
+            for (ObjectName objectName : this.mbeansManager.getMBeans(query)) {
+                chStatsNode = objectName.getKeyProperty("node");
+                chStatsHost = Utils.getHostByNode(chStatsNode);
+                chStatsCell = objectName.getKeyProperty("cell");
+                if (path != null && path.length() > 0) {
+                    if ((chStatsNode != null && chStatsNode.length() > 0) && (chStatsHost != null && chStatsHost.length() > 0) && (chStatsCell != null && chStatsCell.length() > 0)) {
+                        path = chStatsCell + ".ch_stats";
+                        host = chStatsHost;
+                    }
+                }
+            }
+
+        }
+
+    }
+
+    public void testt() {
         List<GarbageCollectorMXBean> gcs = ManagementFactory.getGarbageCollectorMXBeans();
         MemoryMXBean mbs = ManagementFactory.getMemoryMXBean();
         CompilationMXBean cmp = ManagementFactory.getCompilationMXBean();

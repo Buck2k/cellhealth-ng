@@ -1,4 +1,4 @@
-package cellhealth.core.statistics;
+package cellhealth.core.statistics.parser;
 
 import cellhealth.utils.properties.xml.PmiStatsType;
 import com.ibm.websphere.pmi.stat.WSStatistic;
