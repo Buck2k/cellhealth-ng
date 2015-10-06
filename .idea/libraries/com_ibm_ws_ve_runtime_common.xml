@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="com.ibm.ws.ve.runtime.common">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/lib/com.ibm.ws.ve.runtime.common.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>
