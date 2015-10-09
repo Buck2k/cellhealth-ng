@@ -94,6 +94,7 @@ public class ThreadManager implements Runnable {
             }
         }
     }
+
     public void connectToWebSphere(){
         this.wasConnection = new WASConnectionSOAP();
         this.startMBeansManager();
