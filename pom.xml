@@ -33,8 +33,8 @@
             <version>${log4j.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.ibm.ws.admin</groupId>
-            <artifactId>client</artifactId>
+            <groupId>com.ibm.ws</groupId>
+            <artifactId>admin.client</artifactId>
             <version>6.1.0 </version>
         </dependency>
         <dependency>
