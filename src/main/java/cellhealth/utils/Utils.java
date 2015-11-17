@@ -6,15 +6,12 @@ import cellhealth.utils.logs.L4j;
 import com.ibm.websphere.pmi.stat.WSStatistic;
 
 import javax.management.ObjectName;
+import java.util.List;
 import java.util.Set;
 
-/**
- * Created by alberto on 1/07/15.
- */
 public class Utils {
     public static String getWSStatisticType(WSStatistic wsstatistic) {
         String chain = wsstatistic.toString().replace(" ", "");
-        String[] blocs = chain.split("\\,");
 
         for(String type: chain.split("\\,")){
             String[] splitType = type.split("=");
@@ -48,5 +45,14 @@ public class Utils {
         beanName = beanName.replace(")", "");
         beanName = beanName.replace("(", "");
         return beanName;
+    }
+
+    public static boolean listContainsReg(List<String> listString, String regex){
+        for(String string:listString){
+            if(string.matches(regex)){
+                return true;
+            }
+        }
+        return false;
     }
 }

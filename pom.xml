@@ -4,7 +4,7 @@
     <artifactId>cellhealth-ng</artifactId>
     <version>0.5</version>
     <properties>
-        <commit.hash>60ed33131</commit.hash>
+        <commit.hash>d1ad473f4</commit.hash>
         <base.path>cellhealth-ng/</base.path>
         <junit.version>4.12</junit.version>
         <assembly.version>2.4</assembly.version>
@@ -84,6 +84,7 @@
                         </archive>
                         <finalName>cellhealth-ng.${project.version}-${commit.hash}</finalName>
                         <appendAssemblyId>false</appendAssemblyId>
+                        <attach>false</attach>
                     </configuration>
                     <executions>
                         <execution>

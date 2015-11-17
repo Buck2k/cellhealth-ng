@@ -75,7 +75,8 @@ public class ReadMetricXml {
         metricGroup.setAllowGlobal(getBooleanValue(element, "AllowGlobal"));
         metricGroup.setPrefix(getStringValue(element, "Prefix"));
         metricGroup.setUniqueInstance(getBooleanValue(element, "UniqueInstance"));
-        metricGroup.setInstanceFilter(getInstanceFilter(element, "InstanceFilter"));
+        metricGroup.setInstanceInclude(getInstanceFilter(element, "InstanceInclude"));
+        metricGroup.setInstanceExclude(getInstanceFilter(element, "InstanceExclude"));
         List<Metric> metrics = getMetriGroupMetrics(node.getChildNodes());
         metricGroup.setMetrics(metrics);
         if(metricGroup.getStatsType() == null || metricGroup.getPrefix() == null) {
