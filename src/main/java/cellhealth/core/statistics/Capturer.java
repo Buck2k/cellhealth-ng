@@ -73,7 +73,7 @@ public class Capturer {
                 if(especificStats != null){
                     stats.addAll(getStatsType(metricGroup, especificStats, true));
                 } else {
-                    L4j.getL4j().warning("Node: " + this.node + " Server: " + this.serverName + " Not found statstype " + metricGroup.getStatsType());
+                    L4j.getL4j().debug("Node: " + this.node + " Server: " + this.serverName + " Not found statstype " + metricGroup.getStatsType());
                 }
             }
         } else {
