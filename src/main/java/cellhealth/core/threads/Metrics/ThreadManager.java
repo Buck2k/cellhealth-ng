@@ -44,12 +44,11 @@ public class ThreadManager implements Runnable {
         boolean start = true;
         while(start){
             try {
-                long start_time=System.currentTimeMillis();
+                //long start_time=System.currentTimeMillis();
                 this.launchThreads();
-                long elapsed = (System.currentTimeMillis() - start_time);
-                L4j.getL4j().debug("Elapsed calculated time: " + String.valueOf(Settings.propertie().getThreadInterval()-elapsed));
-                Thread.sleep(Settings.propertie().getThreadInterval()-elapsed);
-                //Thread.sleep(Settings.propertie().getThreadInterval());
+                //long elapsed = (System.currentTimeMillis() - start_time);
+                //Thread.sleep(Settings.propertie().getThreadInterval()-elapsed);
+                Thread.sleep(Settings.propertie().getThreadInterval());
             } catch (InterruptedException e) {
                 start = false;
                 L4j.getL4j().error("TreadManager sleep error: ", e);
@@ -80,10 +79,8 @@ public class ThreadManager implements Runnable {
         while(waitToThreads){
             Long elapsed =  new Date().getTime() - timeCountStart.getTime();
             if(executor.isTerminated()){
-                L4j.getL4j().debug("ChStats isActived : " + Settings.propertie().isSelfStats());
                 if(Settings.propertie().isSelfStats()) {
                     chStats.getSelfStats(String.valueOf(elapsed));
-                    L4j.getL4j().debug("ChStats size: " + chStats.getStats().size());
                     if (chStats.getStats() != null) {
                         for (String metric : chStats.getStats()) {
                             sender.send(chStats.getHost(), metric);
@@ -97,7 +94,6 @@ public class ThreadManager implements Runnable {
             }
         }
     }
-
     public void connectToWebSphere(){
         this.wasConnection = new WASConnectionSOAP();
         this.startMBeansManager();

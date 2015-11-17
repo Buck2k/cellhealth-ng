@@ -105,7 +105,6 @@ public class MBeansManager {
         return objectName.getKeyProperty("node");
     }
 
-
     public Map<String,String> getPathHostChStats(){
         Map<String,String> pathChstats = new HashMap<String, String>();
         ObjectName dmgr = this.getMBean("WebSphere:processType=DeploymentManager,*");
