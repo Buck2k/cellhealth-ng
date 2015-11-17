@@ -11,9 +11,6 @@ public class MetricGroup {
     private String prefix;
     private boolean uniqueInstance;
     private boolean allowGlobal;
-    private List<String> instanceInclude;
-    private List<Metric> metrics;
-    private List<String> instanceExclude;
 
 
     public void setAllowGlobal(boolean allowGlobal) {
@@ -23,6 +20,9 @@ public class MetricGroup {
     public boolean getAllowGlobal(){
         return this.allowGlobal;
     }
+
+    private List<String> InstanceFilter;
+    private List<Metric> metrics;
 
     public MetricGroup(){}
 
@@ -50,14 +50,13 @@ public class MetricGroup {
         this.uniqueInstance = uniqueInstance;
     }
 
-    public List<String> getInstanceInclude() {
-        return instanceInclude;
+    public List<String> getInstanceFilter() {
+        return InstanceFilter;
     }
 
-    public void setInstanceInclude(List<String> instanceInclude) {
-        this.instanceInclude = instanceInclude;
+    public void setInstanceFilter(List<String> instanceFilter) {
+        InstanceFilter = instanceFilter;
     }
-
 
     public List<Metric> getMetrics() {
         return metrics;
@@ -67,11 +66,4 @@ public class MetricGroup {
         this.metrics = metrics;
     }
 
-    public List<String> getInstanceExclude() {
-        return instanceExclude;
-    }
-
-    public void setInstanceExclude(List<String> instanceExclude) {
-        this.instanceExclude = instanceExclude;
-    }
 }
